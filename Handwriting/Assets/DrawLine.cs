@@ -17,7 +17,6 @@ public class DrawLine : MonoBehaviour
     List<Vector2> points = new List<Vector2>();
     
     // Samples
-    // List<Vector2> sampled = new List<Vector2>();
     List<List<Vector2>> sampledList = new List<List<Vector2>>();
 
     // Drawing sampled data
@@ -31,7 +30,7 @@ public class DrawLine : MonoBehaviour
     float xMin, yMin, xMax, yMax;
 
     // GameObject canvas;
-    float canvasWidth, canvasHeight, CanavsTo;
+    float canvasWidth, canvasHeight;
 
     // Screen to Canvas pixel ratio(screen/canvas): 실제 스크린 사이즈와 scanvas 사이즈의 비율 
     float ratioWidth, ratioHeight;
@@ -63,9 +62,6 @@ public class DrawLine : MonoBehaviour
             // 마우스 버튼이 처음으로 눌러졌을 때,
             Vector2 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D[] hit = Physics2D.RaycastAll(worldPosition, Vector2.zero);
-
-            // Debug.Log("world position: " + worldPosition);
-            // Debug.Log("screen position: " + Input.mousePosition);
 
             if(VerifyPosition(hit)){
                 //첫번째 점이면, line 프리팹 만들고 선 그리기 시작
@@ -112,8 +108,6 @@ public class DrawLine : MonoBehaviour
             Destroy(line); 
         }
         lineList.Clear();
-
-        // DeleteSample();
     }
 
     void DeleteSample() {
@@ -125,22 +119,23 @@ public class DrawLine : MonoBehaviour
 
     public void Save(){
         
-        // string linePoints = "";
-        // linePoints += lr.GetPosition(i)[0] + "," + lr.GetPosition(i)[1] + ",";
+        // 초기화        
         linePoints = "";
 
+        // 데이터 샘플링
         Sampling();
 
+        // Sampled Area에 샘플된 데이터 그리기
         DrawSample();
 
-        // 사용자가 입력하려는 음소
+        // 사용자가 입력한 음소 받아오기
         string phoneme = inputField.GetComponent<InputField>().text;
         GameObject.Find("Letter").GetComponent<Text>().text = phoneme;
 
         // Dialog 메시지 띄우기
         SetDialogMessage(phoneme,linePoints);
         
-        // 조건 만족하면
+        // 조건 만족하면 서버에 저장
         if(phoneme != "" && linePoints != "") {
             Debug.Log("저장하고 지우기");
             // 서버에 저장하기
@@ -156,7 +151,6 @@ public class DrawLine : MonoBehaviour
 
     void SetDialogMessage(string phoneme, string linePoints) {
         GameObject dialogText = dialog.transform.Find("Dialog/Text").gameObject;
-        Debug.Log("음소: " + phoneme + " 데이터: ++" + linePoints + "++");
 
         if(phoneme == "") {
             // 음소를 입력하지 않았을 때
@@ -173,13 +167,16 @@ public class DrawLine : MonoBehaviour
         dialog.SetActive(true);
         dialog.transform.SetAsLastSibling();
     }
+
     void Sampling() {
         // 변수 초기화
         sampledList.Clear();
         linePoints = "";
 
-        // 입력 값의 각 크기와 중앙점 찾기
+        // 오른쪽, 왼쪽, 위, 아래 가장 바깥점 찾기
         FindMaxMin();
+
+        // 입력 값의 각 크기와 중앙점 찾기
         float xLength = xMax - xMin;
         float yLength = yMax - yMin;
         float inputSize;
@@ -212,6 +209,7 @@ public class DrawLine : MonoBehaviour
     }
     
     void FindMaxMin() {
+        //초기화
         xMin = Screen.width;
         xMax = 0;
         yMin = Screen.height;
@@ -254,12 +252,13 @@ public class DrawLine : MonoBehaviour
             
             // 각 선의 모든 점을 순회하면서 drawing
             for (int i = 0; i < line.Count; i++){
-                // 샘플링 된 점을
+                // 샘플링 된 점을 sampling area로 옮긴 후
                 Vector2 sampledPos = Vector2.zero;
-                sampledPos[0] = line[i][0] + xSampleAreaCenter;  //Screen.width/2  + 560 * ratioWidth;
-                sampledPos[1] = line[i][1] + ySampleAreaCenter;  //Screen.height/2 - 115 * ratioHeight;
+                sampledPos[0] = line[i][0] + xSampleAreaCenter;
+                sampledPos[1] = line[i][1] + ySampleAreaCenter;
                 sampledPos = Camera.main.ScreenToWorldPoint(sampledPos);
-
+                
+                // line Drawing
                 sampledPoints.Add(sampledPos);
                 sampledLineRenderer.positionCount++;
                 sampledLineRenderer.SetPosition(sampledLineRenderer.positionCount - 1, sampledPos);
@@ -267,5 +266,4 @@ public class DrawLine : MonoBehaviour
         }
         sampledPoints.Clear();
     }
-
 }
