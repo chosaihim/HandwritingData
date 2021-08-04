@@ -176,6 +176,7 @@ public class DrawLine : MonoBehaviour
     void Sampling() {
         // 변수 초기화
         sampledList.Clear();
+        linePoints = "";
 
         // 입력 값의 각 크기와 중앙점 찾기
         FindMaxMin();
@@ -202,6 +203,9 @@ public class DrawLine : MonoBehaviour
                 pos[1] = pos[1] * sampleHeight/inputSize - yCenter; // + Screen.height/2 - 115 * ratioHeight;
                 
                 sampled.Add(pos);
+                
+                // 서버에 저장할 데이터 string으로 이어붙이기
+                linePoints += pos[0] + "," + pos[1] + ",";
             }
             sampledList.Add(sampled);
         }
@@ -228,19 +232,19 @@ public class DrawLine : MonoBehaviour
                 if(yMin > y) yMin = y;
                 if(yMax < y) yMax = y;
 
-                linePoints += lr.GetPosition(i)[0] + "," + lr.GetPosition(i)[1] + ",";
             }
         }
     }
 
     void DrawSample() {
-
+        // 초기화
         DeleteSample();
         
+        // Sample Area 중앙점
         float xSampleAreaCenter = Screen.width/2 + 560 * ratioWidth;
         float ySampleAreaCenter = Screen.height/2 -115 * ratioHeight;
 
-        // 저장된 샘플 리스트 돌면서 모든 포인트를 저장
+        // 저장된 샘플 리스트 돌면서 모든 선 순회
         foreach(List<Vector2> line in sampledList) {
             GameObject sampledLine = Instantiate(linePrefab);
             sampledLineList.Add(sampledLine);
@@ -248,7 +252,9 @@ public class DrawLine : MonoBehaviour
             sampledLineRenderer = sampledLine.GetComponent<LineRenderer>();
             sampledLineRenderer.positionCount = 0;
             
+            // 각 선의 모든 점을 순회하면서 drawing
             for (int i = 0; i < line.Count; i++){
+                // 샘플링 된 점을
                 Vector2 sampledPos = Vector2.zero;
                 sampledPos[0] = line[i][0] + xSampleAreaCenter;  //Screen.width/2  + 560 * ratioWidth;
                 sampledPos[1] = line[i][1] + ySampleAreaCenter;  //Screen.height/2 - 115 * ratioHeight;
