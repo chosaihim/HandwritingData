@@ -17,7 +17,7 @@ public class DrawLine : MonoBehaviour
     List<Vector2> points = new List<Vector2>();
     
     // Samples
-    List<Vector2> sampled = new List<Vector2>();
+    // List<Vector2> sampled = new List<Vector2>();
     List<List<Vector2>> sampledList = new List<List<Vector2>>();
 
     // Drawing sampled data
@@ -112,6 +112,8 @@ public class DrawLine : MonoBehaviour
             Destroy(line); 
         }
         lineList.Clear();
+
+        // DeleteSample();
     }
 
     void DeleteSample() {
@@ -127,14 +129,9 @@ public class DrawLine : MonoBehaviour
         // linePoints += lr.GetPosition(i)[0] + "," + lr.GetPosition(i)[1] + ",";
         linePoints = "";
 
-        // FindMaxMin();
-
-        Debug.Log("샘플링포인트: " + sampledPoints.Count);
-
-
         Sampling();
 
-        // DrawSample();
+        DrawSample();
 
         // 사용자가 입력하려는 음소
         string phoneme = inputField.GetComponent<InputField>().text;
@@ -151,9 +148,6 @@ public class DrawLine : MonoBehaviour
             // 저장하면 linePoints 지우기
             DeleteAll();
         }
-
-        sampledPoints.Clear();
-
     }
 
     public void ConfirmButton() {
@@ -180,16 +174,11 @@ public class DrawLine : MonoBehaviour
         dialog.transform.SetAsLastSibling();
     }
     void Sampling() {
-
-        // sampledList.Clear();
-        // sampled.Clear();
-        // sampledLineList.Clear();
-
-        DeleteSample();
-        
-        FindMaxMin();
+        // 변수 초기화
+        sampledList.Clear();
 
         // 입력 값의 각 크기와 중앙점 찾기
+        FindMaxMin();
         float xLength = xMax - xMin;
         float yLength = yMax - yMin;
         float inputSize;
@@ -200,61 +189,22 @@ public class DrawLine : MonoBehaviour
         float xCenter = (xMax + xMin)/2 * sampleWidth / inputSize;
         float yCenter = (yMax + yMin)/2 * sampleHeight / inputSize;
 
+        // 입력값을 일정 크기로 맞추기
         foreach(GameObject line in lineList) {
             LineRenderer lr = line.GetComponent<LineRenderer>();
-
-            GameObject sampledLine = Instantiate(linePrefab);
-            sampledLineList.Add(sampledLine);
-            
-            sampledLine.transform.SetParent(this.transform.Find("SampledArea/SampledData"));
-            sampledLineRenderer = sampledLine.GetComponent<LineRenderer>();
-            
-            // col = sampledLine.GetComponent<EdgeCollider2D>();
-            sampledLineRenderer.positionCount = 0;
+            List<Vector2> sampled = new List<Vector2>();
             
             for (int i = 0; i < lr.positionCount; i++){ 
-                Vector2 sampledPos = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
-                sampledPos[0] = sampledPos[0] * sampleWidth/inputSize - xCenter + Screen.width/2 + 560 * ratioWidth;
-                sampledPos[1] = sampledPos[1] * sampleHeight/inputSize - yCenter + Screen.height/2 - 115 * ratioHeight;
-                sampledPos = Camera.main.ScreenToWorldPoint(sampledPos);
-
-                sampledPoints.Add(sampledPos);
-                sampledLineRenderer.positionCount++;
-                sampledLineRenderer.SetPosition(sampledLineRenderer.positionCount - 1, sampledPos);
+                Vector2 pos = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
+                
+                // 원점을 중앙으로 한 sampling data 저장하기
+                pos[0] = pos[0] * sampleWidth/inputSize  - xCenter; // + Screen.width/2 + 560 * ratioWidth;
+                pos[1] = pos[1] * sampleHeight/inputSize - yCenter; // + Screen.height/2 - 115 * ratioHeight;
+                
+                sampled.Add(pos);
             }
+            sampledList.Add(sampled);
         }
-
-        // // 입력값을 일정 크기로 맞추기
-        // foreach(GameObject line in lineList) {
-        //     LineRenderer lr = line.GetComponent<LineRenderer>();
-
-        //     // GameObject sampledLine = Instantiate(linePrefab);
-        //     // sampledLineList.Add(sampledLine);
-        //     // sampledLine.transform.SetParent(this.transform.Find("SampledArea/SampledData"));
-        //     // sampledLineRenderer = sampledLine.GetComponent<LineRenderer>();
-            
-        //     // // col = sampledLine.GetComponent<EdgeCollider2D>();
-        //     // sampledLineRenderer.positionCount = 0;
-            
-        //     for (int i = 0; i < lr.positionCount; i++){ 
-        //         Vector2 sampledPos = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
-
-        //         // 원점을 중앙으로 한 sampling data 저장하기
-
-        //         sampledPos[0] = sampledPos[0] * sampleWidth/inputSize  - xCenter; // + Screen.width/2 + 560 * ratioWidth;
-        //         sampledPos[1] = sampledPos[1] * sampleHeight/inputSize - yCenter; // + Screen.height/2 - 115 * ratioHeight;
-                
-        //         sampled.Add(sampledPos);
-
-                
-        //         // sampledPos = Camera.main.ScreenToWorldPoint(sampledPos);
-
-        //         // sampledPoints.Add(sampledPos);
-        //         // sampledLineRenderer.positionCount++;
-        //         // sampledLineRenderer.SetPosition(sampledLineRenderer.positionCount - 1, sampledPos);
-        //     }
-        //     sampledList.Add(sampled);
-        // }
     }
     
     void FindMaxMin() {
@@ -286,23 +236,22 @@ public class DrawLine : MonoBehaviour
     void DrawSample() {
 
         DeleteSample();
+        
+        float xSampleAreaCenter = Screen.width/2 + 560 * ratioWidth;
+        float ySampleAreaCenter = Screen.height/2 -115 * ratioHeight;
 
-        Debug.Log("카운트: " + sampledList.Count);
-
+        // 저장된 샘플 리스트 돌면서 모든 포인트를 저장
         foreach(List<Vector2> line in sampledList) {
-            Debug.Log("라인: " + line.Count);
             GameObject sampledLine = Instantiate(linePrefab);
             sampledLineList.Add(sampledLine);
             sampledLine.transform.SetParent(this.transform.Find("SampledArea/SampledData"));
             sampledLineRenderer = sampledLine.GetComponent<LineRenderer>();
-            
-            // col = sampledLine.GetComponent<EdgeCollider2D>();
             sampledLineRenderer.positionCount = 0;
             
             for (int i = 0; i < line.Count; i++){
                 Vector2 sampledPos = Vector2.zero;
-                sampledPos[0] = line[i][0] + Screen.width/2  + 560 * ratioWidth;
-                sampledPos[1] = line[i][1] + Screen.height/2 - 115 * ratioHeight;
+                sampledPos[0] = line[i][0] + xSampleAreaCenter;  //Screen.width/2  + 560 * ratioWidth;
+                sampledPos[1] = line[i][1] + ySampleAreaCenter;  //Screen.height/2 - 115 * ratioHeight;
                 sampledPos = Camera.main.ScreenToWorldPoint(sampledPos);
 
                 sampledPoints.Add(sampledPos);
@@ -310,33 +259,7 @@ public class DrawLine : MonoBehaviour
                 sampledLineRenderer.SetPosition(sampledLineRenderer.positionCount - 1, sampledPos);
             }
         }
+        sampledPoints.Clear();
     }
-
-
-    //backup
-        // // 입력값을 일정 크기로 맞추기
-        // foreach(GameObject line in lineList) {
-        //     LineRenderer lr = line.GetComponent<LineRenderer>();
-
-        //     GameObject sampledLine = Instantiate(linePrefab);
-        //     sampledLineList.Add(sampledLine);
-            
-        //     sampledLine.transform.SetParent(this.transform.Find("SampledArea/SampledData"));
-        //     sampledLineRenderer = sampledLine.GetComponent<LineRenderer>();
-            
-        //     // col = sampledLine.GetComponent<EdgeCollider2D>();
-        //     sampledLineRenderer.positionCount = 0;
-            
-        //     for (int i = 0; i < lr.positionCount; i++){ 
-        //         Vector2 sampledPos = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
-        //         sampledPos[0] = sampledPos[0] * sampleWidth/inputSize - xCenter + Screen.width/2 + 560 * ratioWidth;
-        //         sampledPos[1] = sampledPos[1] * sampleHeight/inputSize - yCenter + Screen.height/2 - 115 * ratioHeight;
-        //         sampledPos = Camera.main.ScreenToWorldPoint(sampledPos);
-
-        //         sampledPoints.Add(sampledPos);
-        //         sampledLineRenderer.positionCount++;
-        //         sampledLineRenderer.SetPosition(sampledLineRenderer.positionCount - 1, sampledPos);
-        //     }
-        // }
 
 }
