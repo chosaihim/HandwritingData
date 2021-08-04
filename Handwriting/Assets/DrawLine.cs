@@ -3,22 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+
 public class DrawLine : MonoBehaviour
 {
     public GameObject linePrefab;
     public GameObject inputField, dialog;
-    int saveFlag = 0;
+    float xMin, yMin, xMax, yMax;
     List<GameObject> lineList = new List<GameObject>();
+    List<GameObject> sampledLineList = new List<GameObject>();
 
     LineRenderer lineRenderer;
-    EdgeCollider2D col;
+    LineRenderer sampledLineRenderer;
+    EdgeCollider2D col, sampledCol;
     List<Vector2> points = new List<Vector2>();
+    List<Vector2> sampledPoints = new List<Vector2>();
+
+    const float fixedScreenWidth = 1624;
+    const float fixedScreenHeight = 750;
+    const float samplePixel = 360;
+
+    GameObject writingArea, canvas;
+    float canvasWidth, canvasHeight;
     
 
     // Start is called before the first frame update
     void Start()
     {
-
+        canvas = GameObject.Find("Canvas");
+        canvasWidth = canvas.transform.GetComponent<RectTransform>().rect.width;
+        canvasHeight = canvas.transform.GetComponent<RectTransform>().rect.height;
+        
     }
 
     // Update is called once per frame
@@ -28,13 +43,15 @@ public class DrawLine : MonoBehaviour
         {
             Vector2 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D[] hit = Physics2D.RaycastAll(worldPosition, Vector2.zero);
-            
+
+            Debug.Log("world position: " + worldPosition);
+            Debug.Log("screen position: " + Input.mousePosition);
+
             if(VerifyPosition(hit)){
                 Debug.Log("박스 안에 있음");
 
                 GameObject line = Instantiate(linePrefab);
                 lineList.Add(line);
-
                 line.transform.SetParent(this.transform.Find("WritingArea"));
                 lineRenderer = line.GetComponent<LineRenderer>();
                 col = line.GetComponent<EdgeCollider2D>();
@@ -83,20 +100,95 @@ public class DrawLine : MonoBehaviour
         foreach(GameObject line in lineList) { 
             Destroy(line); 
         }
-
         lineList.Clear();
+        
+        foreach(GameObject line in sampledLineList) { 
+            Destroy(line); 
+        }
+        sampledLineList.Clear();
     }
 
     public void Save(){
         string linePoints = "";
+
+        xMax = 0;
+        xMin = 1024;
+        yMax = 0;
+        yMin = 1024;
+
+        Debug.Log("Actual width: " + Screen.width);
+        Debug.Log("Actual height: " + Screen.height);
+
         
+
+        // 모든 라인 순회하며 포인트 수집
         foreach(GameObject line in lineList) {
             LineRenderer lr = line.GetComponent<LineRenderer>();
+            
             for (int i = 0; i < lr.positionCount; i++){
+                // float x = lr.GetPosition(i)[0];
+                // float y = lr.GetPosition(i)[1];
+                
+                Vector2 screenPosition = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
+                float x = screenPosition[0];
+                float y = screenPosition[1];
+
+                if(xMin > x) xMin = x;
+                if(xMax < x) xMax = x;
+
+                if(yMin > y) yMin = y;
+                if(yMax < y) yMax = y;
+
+
                 linePoints += lr.GetPosition(i)[0] + "," + lr.GetPosition(i)[1] + ",";
             }
         }
 
+        Debug.Log("(Xmax, Xmin, Ymax, Ymin): (" + xMax + "," + xMin + "," + yMax + "," + yMin + ")");
+        Debug.Log("SIZE: " + (xMax - xMin) + ", " + (yMax - yMin));
+        float xLength = xMax - xMin;
+        float yLength = yMax - yMin;
+        float xCenter = (xMax + xMin)/2;
+        float yCenter = (yMax + yMin)/2;
+        float sampledLength;
+
+        if(xLength > yLength) sampledLength = xLength;
+        else sampledLength = yLength;
+
+        // float xNewCenter = (xMax + xMin)/2 * (300* Screen.width / fixedScreenWidth) / sampledLength;
+        // float yNewCenter = (yMax + yMin)/2 * (300* Screen.height / fixedScreenHeight) / sampledLength;
+        float xNewCenter = (xMax + xMin)/2 * (300* Screen.width / canvasWidth) / sampledLength;
+        float yNewCenter = (yMax + yMin)/2 * (300* Screen.height / canvasHeight) / sampledLength;
+        Debug.Log("Center: (" + xCenter + ", " + yCenter + ")");
+
+        // Sampled Data 보여주기
+        foreach(GameObject line in lineList) {
+            LineRenderer lr = line.GetComponent<LineRenderer>();
+
+            GameObject sampledLine = Instantiate(linePrefab);
+            sampledLineList.Add(sampledLine);
+            sampledLine.transform.SetParent(this.transform.Find("SampledArea/SampledData"));
+            sampledLineRenderer = sampledLine.GetComponent<LineRenderer>();
+            col = sampledLine.GetComponent<EdgeCollider2D>();
+            sampledLineRenderer.positionCount = 0;
+            
+            for (int i = 0; i < lr.positionCount; i++){ 
+
+                Vector2 sampledPos = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
+                sampledPos[0] = sampledPos[0] * (300* Screen.width / canvasWidth)   / sampledLength - (xNewCenter - xCenter) + 560 * Screen.width / fixedScreenWidth;
+                sampledPos[1] = sampledPos[1] * (300* Screen.height / canvasHeight) / sampledLength - (yNewCenter - yCenter) - 115 * Screen.height / fixedScreenHeight;
+                sampledPos = Camera.main.ScreenToWorldPoint(sampledPos);
+
+
+                sampledPoints.Add(sampledPos);
+                sampledLineRenderer.positionCount++;
+                sampledLineRenderer.SetPosition(sampledLineRenderer.positionCount - 1, sampledPos);
+                // sampledCol.points = sampledPoints.ToArray();
+            }
+        }
+
+
+        // 사용자가 입력하려는 음소
         string phoneme = inputField.GetComponent<InputField>().text;
 
         // Debug for now
@@ -121,8 +213,8 @@ public class DrawLine : MonoBehaviour
     }
 
     void SetDialogMessage(string phoneme, string linePoints) {
-        GameObject dialogText = dialog.transform.Find("Text").gameObject;
-        Debug.Log("음소: " + phoneme + " 데이터: -" + linePoints + "--");
+        GameObject dialogText = dialog.transform.Find("Dialog/Text").gameObject;
+        Debug.Log("음소: " + phoneme + " 데이터: ++" + linePoints + "++");
 
         // 음소를 입력하지 않았을 때
         if(phoneme == "")
