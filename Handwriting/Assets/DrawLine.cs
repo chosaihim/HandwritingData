@@ -26,7 +26,7 @@ public class DrawLine : MonoBehaviour
     const float samplePixelSize = 360;
 
     GameObject canvas;
-    float canvasWidth, canvasHeight;
+    float canvasWidth, canvasHeight, CanavsTo;
     
 
     // Start is called before the first frame update
@@ -41,8 +41,11 @@ public class DrawLine : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))    // 마우스 버튼이 처음으로 눌러졌을 때,
-        {
+        Draw();
+    }
+
+    void Draw() {
+        if (Input.GetMouseButtonDown(0)) { // 마우스 버튼이 처음으로 눌러졌을 때,
             Vector2 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D[] hit = Physics2D.RaycastAll(worldPosition, Vector2.zero);
 
@@ -51,7 +54,7 @@ public class DrawLine : MonoBehaviour
 
             if(VerifyPosition(hit)){
                 Debug.Log("박스 안에 있음");
-
+                //첫번째 점이면, line 프리팹 만들고 선 그리기 시작
                 GameObject line = Instantiate(linePrefab);
                 lineList.Add(line);
                 line.transform.SetParent(this.transform.Find("WritingArea"));
@@ -63,15 +66,12 @@ public class DrawLine : MonoBehaviour
                 lineRenderer.SetPosition(0, points[0]);
             }
 
-        }
-        else if (Input.GetMouseButton(0))   //마우스 버튼이 눌러져있는 상태
-        {
+        } else if (Input.GetMouseButton(0)) {//마우스 버튼이 눌러져있는 상태
             Vector2 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             RaycastHit2D[] hit = Physics2D.RaycastAll(pos, Vector2.zero);
             
             if(points.Count > 0 && VerifyPosition(hit))    // 선그리기가 시작되었고, 박스안에 있으면
             {
-
                 if (Vector2.Distance(points[points.Count - 1], pos) > 0.1f)
                 {
                     points.Add(pos);
@@ -80,15 +80,12 @@ public class DrawLine : MonoBehaviour
                     col.points = points.ToArray();
                 }
             }
-        }
-        else if (Input.GetMouseButtonUp(0))
-        {
+        } else if (Input.GetMouseButtonUp(0)) {
             points.Clear();
         }
     }
 
-    protected bool VerifyPosition(RaycastHit2D[] hit)
-    {
+    protected bool VerifyPosition(RaycastHit2D[] hit) {
         if(hit.Length == 1){
             return true;
         }
@@ -97,8 +94,7 @@ public class DrawLine : MonoBehaviour
 
     }
 
-    public void DeleteAll()
-    {
+    public void DeleteAll() {
         foreach(GameObject line in lineList) { 
             Destroy(line); 
         }
