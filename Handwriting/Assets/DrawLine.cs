@@ -10,20 +10,22 @@ public class DrawLine : MonoBehaviour
     public GameObject linePrefab;
     public GameObject inputField, dialog;
     float xMin, yMin, xMax, yMax;
+
+
     List<GameObject> lineList = new List<GameObject>();
-    List<GameObject> sampledLineList = new List<GameObject>();
-
     LineRenderer lineRenderer;
-    LineRenderer sampledLineRenderer;
-    EdgeCollider2D col, sampledCol;
+    EdgeCollider2D col;
     List<Vector2> points = new List<Vector2>();
+    
+    // Sampled Data 
+    List<GameObject> sampledLineList = new List<GameObject>();
+    LineRenderer sampledLineRenderer;
     List<Vector2> sampledPoints = new List<Vector2>();
+    EdgeCollider2D sampledCol;
 
-    const float fixedScreenWidth = 1624;
-    const float fixedScreenHeight = 750;
-    const float samplePixel = 360;
+    const float samplePixelSize = 360;
 
-    GameObject writingArea, canvas;
+    GameObject canvas;
     float canvasWidth, canvasHeight;
     
 
@@ -119,7 +121,6 @@ public class DrawLine : MonoBehaviour
         Debug.Log("Actual width: " + Screen.width);
         Debug.Log("Actual height: " + Screen.height);
 
-        
 
         // 모든 라인 순회하며 포인트 수집
         foreach(GameObject line in lineList) {
@@ -146,6 +147,7 @@ public class DrawLine : MonoBehaviour
 
         Debug.Log("(Xmax, Xmin, Ymax, Ymin): (" + xMax + "," + xMin + "," + yMax + "," + yMin + ")");
         Debug.Log("SIZE: " + (xMax - xMin) + ", " + (yMax - yMin));
+
         float xLength = xMax - xMin;
         float yLength = yMax - yMin;
         float xCenter = (xMax + xMin)/2;
@@ -155,8 +157,6 @@ public class DrawLine : MonoBehaviour
         if(xLength > yLength) sampledLength = xLength;
         else sampledLength = yLength;
 
-        // float xNewCenter = (xMax + xMin)/2 * (300* Screen.width / fixedScreenWidth) / sampledLength;
-        // float yNewCenter = (yMax + yMin)/2 * (300* Screen.height / fixedScreenHeight) / sampledLength;
         float xNewCenter = (xMax + xMin)/2 * (300* Screen.width / canvasWidth) / sampledLength;
         float yNewCenter = (yMax + yMin)/2 * (300* Screen.height / canvasHeight) / sampledLength;
         Debug.Log("Center: (" + xCenter + ", " + yCenter + ")");
@@ -175,15 +175,13 @@ public class DrawLine : MonoBehaviour
             for (int i = 0; i < lr.positionCount; i++){ 
 
                 Vector2 sampledPos = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
-                sampledPos[0] = sampledPos[0] * (300* Screen.width / canvasWidth)   / sampledLength - (xNewCenter - xCenter) + 560 * Screen.width / fixedScreenWidth;
-                sampledPos[1] = sampledPos[1] * (300* Screen.height / canvasHeight) / sampledLength - (yNewCenter - yCenter) - 115 * Screen.height / fixedScreenHeight;
+                sampledPos[0] = sampledPos[0] * (300* Screen.width / canvasWidth)   / sampledLength - xNewCenter + Screen.width/2 + 560 * Screen.width / canvasWidth;
+                sampledPos[1] = sampledPos[1] * (300* Screen.height / canvasHeight) / sampledLength - yNewCenter + Screen.height/2 - 115 * Screen.height / canvasHeight;
                 sampledPos = Camera.main.ScreenToWorldPoint(sampledPos);
-
 
                 sampledPoints.Add(sampledPos);
                 sampledLineRenderer.positionCount++;
                 sampledLineRenderer.SetPosition(sampledLineRenderer.positionCount - 1, sampledPos);
-                // sampledCol.points = sampledPoints.ToArray();
             }
         }
 
@@ -233,8 +231,12 @@ public class DrawLine : MonoBehaviour
             dialogText.GetComponent<Text>().text = "저장이\n완료되었습니다.";
         }
 
-        // 에러 메시지 띄우기
+        // 메시지 띄우기
         dialog.SetActive(true);
         dialog.transform.SetAsLastSibling();
+    }
+
+    void Sampling() {
+
     }
 }
