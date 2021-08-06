@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-
-
 public class DrawLine : MonoBehaviour
 {
     // *** Variables *** //
     public GameObject linePrefab, canvas;
-    public GameObject inputField, dialog;
+    public GameObject inputField, dialog, nameField;
 
     // Drawing
     List<GameObject> lineList = new List<GameObject>();
@@ -130,14 +128,19 @@ public class DrawLine : MonoBehaviour
         // 사용자가 입력한 음소 받아오기
         string phoneme = inputField.GetComponent<InputField>().text;
         GameObject.Find("Letter").GetComponent<Text>().text = phoneme;
+        //사용자 이름 받아오기
+        string name = nameField.GetComponent<InputField>().text;
 
         // Dialog 메시지 띄우기
-        SetDialogMessage(phoneme,linePoints);
+        SetDialogMessage(phoneme,linePoints,name);
         
         // 조건 만족하면 서버에 저장
         if(phoneme != "" && linePoints != "") {
             Debug.Log("저장하고 지우기");
+            
             // 서버에 저장하기
+            ServerManager manager = GameObject.Find("ServerManager").GetComponent<ServerManager>();
+            manager.saveData(name, phoneme, linePoints);
 
             // 저장하면 linePoints 지우기
             DeleteAll();
@@ -148,7 +151,7 @@ public class DrawLine : MonoBehaviour
         dialog.SetActive(false);
     }
 
-    void SetDialogMessage(string phoneme, string linePoints) {
+    void SetDialogMessage(string phoneme, string linePoints, string name) {
         GameObject dialogText = dialog.transform.Find("Dialog/Text").gameObject;
 
         if(phoneme == "") {
@@ -157,6 +160,9 @@ public class DrawLine : MonoBehaviour
         } else if(linePoints == "") {
             // 필기 데이터를 입력하지 않았을 때
             dialogText.GetComponent<Text>().text = "필기 데이터를\n입력해주세요.";
+        } else if(name == "") { 
+            // 이름을 입력하지 않았을 때
+            dialogText.GetComponent<Text>().text = "이름을\n입력해주세요.";
         } else {
             // 저장 완료
             dialogText.GetComponent<Text>().text = "저장이\n완료되었습니다.";
