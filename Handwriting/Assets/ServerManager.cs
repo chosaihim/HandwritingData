@@ -38,6 +38,8 @@ public class ServerManager : MonoBehaviour {
 	private static string newPasswordUrl = serverUrl + "/makeNewPassword";
 	private static string tokenUrl = serverUrl + "/mysql/addToken";
 	private static string timeUrl = serverUrl + "/mysql/addTime";
+	private static string testUrl = serverUrl + "/test";
+	private static string saveDataUrl = serverUrl + "/saveData";
 	public LoginInput loginInput;
 	public SignupInput signupInput;
 
@@ -169,25 +171,55 @@ public class ServerManager : MonoBehaviour {
 
     IEnumerator test1 (string email, string password, bool autologin = false) {
 		Debug.Log("코루틴 시작");
+		int userId = 1;
+		string data = " ";
 		WWWForm testForm = new WWWForm();
+		testForm.AddField ("userId", userId);
+		testForm.AddField ("data", data);
+		UnityWebRequest testReturn = UnityWebRequest.Post(testUrl, testForm);
+		yield return testReturn.SendWebRequest();
+
+		if(!testReturn.isNetworkError){
+			Debug.Log(testReturn);
+		}
 		
 
-		WWWForm loginForm = new WWWForm ();
-		loginForm.AddField ("email", email);
-		loginForm.AddField ("password", password);
-		UnityWebRequest login = UnityWebRequest.Post(ServerManager.loginUrl, loginForm);
-		yield return login.SendWebRequest();
+		// WWWForm loginForm = new WWWForm ();
+		// loginForm.AddField ("email", email);
+		// loginForm.AddField ("password", password);
+		// UnityWebRequest login = UnityWebRequest.Post(ServerManager.loginUrl, loginForm);
+		// yield return login.SendWebRequest();
 		
-		if (!login.isNetworkError) {
+		// if (!login.isNetworkError) {
 			// string serverResponseString = login.downloadHandler.text;
 			// JObject serverResponse = JObject.Parse (serverResponseString);
 			// int serverCode = serverResponse ["code"].ToObject<int> ();
-        }
+        // }
 	}
 
 	public void test() {
 		Debug.Log("테스트 함수");
 		StartCoroutine(test1("1","2",false));
+	}
+
+	public void saveData (string name, string phoneme, string data) {
+		Debug.Log("서버에 저장하기");
+		StartCoroutine(SaveData(name, phoneme, data));
+	}
+
+	IEnumerator SaveData (string name, string phoneme, string data) {
+		Debug.Log("서버저장 코루틴 시작하기");
+
+		WWWForm saveDataForm = new WWWForm();
+		saveDataForm.AddField ("userName", name);
+		saveDataForm.AddField ("data", data);
+		UnityWebRequest saveDataReturn = UnityWebRequest.Post(saveDataUrl, saveDataForm);
+		yield return saveDataReturn.SendWebRequest();
+
+		if(!saveDataReturn.isNetworkError){
+			Debug.Log(saveDataReturn);
+			Debug.Log("서버 저장 실패!");
+		}
 	}
 
 }
