@@ -452,8 +452,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1020050900}
   - {fileID: 1014588205}
+  - {fileID: 1020050900}
   m_Father: {fileID: 1600399658}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1040,12 +1040,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 341018055}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -43.09, y: 0}
-  m_SizeDelta: {x: 265.01285, y: 74.09005}
+  m_AnchoredPosition: {x: -121.7, y: 4.3591}
+  m_SizeDelta: {x: 103.549774, y: 65.3718}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1014588206
 MonoBehaviour:
@@ -1121,7 +1121,7 @@ RectTransform:
   - {fileID: 377319866}
   - {fileID: 674605865}
   m_Father: {fileID: 341018055}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2268,17 +2268,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6265d925874a34b55b440563ba68db91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loginInput:
-    emailInput: {fileID: 0}
-    passwordInput: {fileID: 0}
-    loginButton: {fileID: 0}
-    nextSceneIndex: -1
-  signupInput:
-    emailInput: {fileID: 0}
-    passwordInput: {fileID: 0}
-    phoneInput: {fileID: 0}
-    signupButton: {fileID: 0}
-    nextSceneIndex: -1
 --- !u!1 &1802751759
 GameObject:
   m_ObjectHideFlags: 0

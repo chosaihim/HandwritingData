@@ -136,8 +136,6 @@ public class DrawLine : MonoBehaviour
         
         // 조건 만족하면 서버에 저장
         if(phoneme != "" && linePoints != "") {
-            Debug.Log("저장하고 지우기");
-            
             // 서버에 저장하기
             ServerManager manager = GameObject.Find("ServerManager").GetComponent<ServerManager>();
             manager.saveData(name, phoneme, linePoints);
