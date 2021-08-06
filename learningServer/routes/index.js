@@ -110,9 +110,10 @@ router.get('/mongoSelectAll', function(req, res) {
 })
 
 
-router.get('/test', function(req, res) {
+router.post('/test', function(req, res) {
 
     console.log("테스트");
+    console.log(req.body);
   
     // var db = mongoConn.mongoConnection(mongoose);
     
@@ -136,6 +137,39 @@ router.get('/test', function(req, res) {
     //     res.send(returnObject);
     //     db.close();
     // });
+
+});
+
+router.post('/saveData', function(req, res) {
+
+    console.log("데이터 저장하기");
+
+    var userName = req.body.name;
+    var userData = req.body.data;
+    var userPhoneme = req.body.phoneme;
+
+    var db = mongoConn.mongoConnection(mongoose);
+    
+    var WritingData = mongoSchema.writingData(mongoose);
+
+    // 3. WritingData 객체를 new 로 생성해서 값을 입력
+    var newWriting = new WritingData({name: userName, phoneme: userPhoneme, data: userData});
+
+    // 4. 데이터 저장
+    newWriting.save(function(error, data){
+        if(error){
+            console.log(error);
+        }else{
+            console.log('Saved!')
+        }
+
+        var returnObject = new Object();
+        returnObject.code = 0;
+        returnObject.msg = "successInsert";
+
+        res.send(returnObject);
+        db.close();
+    });
 
 });
 

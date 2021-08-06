@@ -13,6 +13,18 @@ module.exports = function () {
 
       var StudentModel = mongoose.model('Schema', student);
       return StudentModel;
+    },
+    
+    writingData : function(mongoose){
+      var handWriting = mongoose.Schema({
+          name : 'string',
+          phoneme : 'string',
+          data : 'string'
+      });
+
+      var HandWriting = mongoose.model('Schema', handWriting);
+      return HandWriting;
     }
+  
   }
 }
