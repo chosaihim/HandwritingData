@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class DrawLine : MonoBehaviour
 {
+    // *** Variables *** //
     public GameObject linePrefab, canvas;
     public GameObject inputField, dialog;
 
@@ -25,15 +26,14 @@ public class DrawLine : MonoBehaviour
     List<Vector2> sampledPoints = new List<Vector2>();
     EdgeCollider2D sampledCol;
 
+    // 비율 맞추기 (디자인 시 보여지는 픽셀 크기(canvas)와 game play 시 보여지는 픽셀의 크기(Screen)가 다름)
     const float samplePixelSize = 300;
     float sampleWidth, sampleHeight;
     float xMin, yMin, xMax, yMax;
-
-    // GameObject canvas;
     float canvasWidth, canvasHeight;
+    float ratioWidth, ratioHeight;      // Screen to Canvas ratio(screen/canvas)
 
-    // Screen to Canvas pixel ratio(screen/canvas): 실제 스크린 사이즈와 scanvas 사이즈의 비율 
-    float ratioWidth, ratioHeight;
+    // 서버에 저장되는 데이터
     string savedPoints, linePoints; 
     
 
@@ -118,7 +118,6 @@ public class DrawLine : MonoBehaviour
     }
 
     public void Save(){
-        
         // 초기화        
         linePoints = "";
 
@@ -176,7 +175,7 @@ public class DrawLine : MonoBehaviour
         // 오른쪽, 왼쪽, 위, 아래 가장 바깥점 찾기
         FindMaxMin();
 
-        // 입력 값의 각 크기와 중앙점 찾기
+        // 입력 데이터 크기 결정
         float xLength = xMax - xMin;
         float yLength = yMax - yMin;
         float inputSize;
@@ -184,10 +183,11 @@ public class DrawLine : MonoBehaviour
         if(xLength > yLength) inputSize = xLength;
         else inputSize = yLength;
 
-        float xCenter = (xMax + xMin)/2 * sampleWidth / inputSize;
-        float yCenter = (yMax + yMin)/2 * sampleHeight / inputSize;
+        // 크기 변환 후, 필기 데이터의 중앙점 찾기
+        float xCenter = (xMax + xMin)/2 * (sampleWidth  / inputSize);
+        float yCenter = (yMax + yMin)/2 * (sampleHeight / inputSize);
 
-        // 입력값을 일정 크기로 맞추기
+        // 필기 데이터를 일정 크기로 맞추기
         foreach(GameObject line in lineList) {
             LineRenderer lr = line.GetComponent<LineRenderer>();
             List<Vector2> sampled = new List<Vector2>();
@@ -195,10 +195,11 @@ public class DrawLine : MonoBehaviour
             for (int i = 0; i < lr.positionCount; i++){ 
                 Vector2 pos = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
                 
-                // 원점을 중앙으로 한 sampling data 저장하기
+                // 필기 데이터 일정 사이즈로 조정 후, 중앙점을 원점으로 이동
                 pos[0] = pos[0] * sampleWidth/inputSize  - xCenter; // + Screen.width/2 + 560 * ratioWidth;
                 pos[1] = pos[1] * sampleHeight/inputSize - yCenter; // + Screen.height/2 - 115 * ratioHeight;
                 
+                // 원점 중심으로 가공된 데이터 저장
                 sampled.Add(pos);
                 
                 // 서버에 저장할 데이터 string으로 이어붙이기
