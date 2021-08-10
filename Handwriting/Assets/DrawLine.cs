@@ -32,7 +32,10 @@ public class DrawLine : MonoBehaviour
     float ratioWidth, ratioHeight;      // Screen to Canvas ratio(screen/canvas)
 
     // 서버에 저장되는 데이터
-    string savedPoints, linePoints; 
+    string savedPoints, linePoints;
+
+    // 저장할 음소
+    string[] character = new string[24] {'ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ','ㅏ','ㅑ','ㅓ','ㅕ','ㅗ','ㅛ','ㅜ','ㅠ','ㅡ','ㅣ'};
     
 
     void Start()
@@ -135,7 +138,7 @@ public class DrawLine : MonoBehaviour
         SetDialogMessage(phoneme,linePoints,name);
         
         // 조건 만족하면 서버에 저장
-        if(phoneme != "" && linePoints != "") {
+        if(name != "", linePoints != "") { //if(phoneme != "" && linePoints != "") {
             // 서버에 저장하기
             ServerManager manager = GameObject.Find("ServerManager").GetComponent<ServerManager>();
             manager.saveData(name, phoneme, linePoints);
