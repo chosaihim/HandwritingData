@@ -215,7 +215,7 @@ public class DrawLine : MonoBehaviour
             resultText.GetComponent<Text>().text = "이름을\n입력해주세요.";
         } else {
             // 저장 완료
-            resultText.GetComponent<Text>().text = "저장이\n완료되었습니다.";
+            resultText.GetComponent<Text>().text = "저장되었습니다.";
         }
     }
 
