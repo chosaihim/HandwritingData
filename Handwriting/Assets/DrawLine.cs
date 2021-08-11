@@ -56,10 +56,7 @@ public class DrawLine : MonoBehaviour
         sampleHeight = samplePixelSize * ratioHeight;
 
         // 제시어 세팅
-        int test = letterNum/10;
-        Debug.Log(test);
         letterNum = PlayerPrefs.GetInt("letterNum", 0);
-        Debug.Log(letterNum);
         if(letterNum >= 200) {
             nextLetter.GetComponent<Text>().text = "종료";
             resultText.GetComponent<Text>().text = "수고하셨습니다!!\n";
@@ -236,8 +233,12 @@ public class DrawLine : MonoBehaviour
         else inputSize = yLength;
 
         // 크기 변환 후, 필기 데이터의 중앙점 찾기
-        float xCenter = (xMax + xMin)/2 * (sampleWidth  / inputSize);
-        float yCenter = (yMax + yMin)/2 * (sampleHeight / inputSize);
+        // float xCenter = (xMax + xMin)/2 * (sampleWidth  / inputSize);
+        // float yCenter = (yMax + yMin)/2 * (sampleHeight / inputSize);
+
+        // 필기 데이터 중앙점 찾기
+        float xCenter = (xMax + xMin)/2;
+        float yCenter = (yMax + yMin)/2;
 
         // 필기 데이터를 일정 크기로 맞추기
         foreach(GameObject line in lineList) {
@@ -247,11 +248,19 @@ public class DrawLine : MonoBehaviour
             for (int i = 0; i < lr.positionCount; i++){ 
                 Vector2 pos = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
                 
-                // 필기 데이터 일정 사이즈로 조정 후, 중앙점을 원점으로 이동
-                pos[0] = pos[0] * sampleWidth/inputSize  - xCenter; // + Screen.width/2 + 560 * ratioWidth;
-                pos[1] = pos[1] * sampleHeight/inputSize - yCenter; // + Screen.height/2 - 115 * ratioHeight;
+                // 원점을 중심점으로 이동
+                pos[0] -= xCenter;
+                pos[1] -= yCenter;
+
+                // 0~1 사이의 사이즈로 줄이기
+                pos[0] /= inputSize;
+                pos[1] /= inputSize;
+
+                // // 필기 데이터 일정 사이즈로 조정 후, 중앙점을 원점으로 이동
+                // pos[0] = pos[0] * sampleWidth/inputSize  - xCenter; // + Screen.width/2 + 560 * ratioWidth;
+                // pos[1] = pos[1] * sampleHeight/inputSize - yCenter; // + Screen.height/2 - 115 * ratioHeight;
                 
-                // 원점 중심으로 가공된 데이터 저장
+                // 노말라이즈 된 데이터를 배열에 저장
                 sampled.Add(pos);
                 
                 // 서버에 저장할 데이터 string으로 이어붙이기
@@ -307,8 +316,8 @@ public class DrawLine : MonoBehaviour
             for (int i = 0; i < line.Count; i++){
                 // 샘플링 된 점을 sampling area로 옮긴 후
                 Vector2 sampledPos = Vector2.zero;
-                sampledPos[0] = line[i][0] + xSampleAreaCenter;
-                sampledPos[1] = line[i][1] + ySampleAreaCenter;
+                sampledPos[0] = line[i][0] * sampleWidth + xSampleAreaCenter;
+                sampledPos[1] = line[i][1] * sampleHeight + ySampleAreaCenter;
                 sampledPos = Camera.main.ScreenToWorldPoint(sampledPos);
                 
                 // line Drawing
