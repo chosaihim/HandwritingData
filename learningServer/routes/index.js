@@ -5,10 +5,16 @@ var mongoConn = require('../config/mongoPool')();
 var mongoSchema = require('../config/mongoSchema')();
 
 mongoConn.mongoConnect(mongoose);
+var db = mongoConn.mongoConnection(mongoose);
+var WritingData = mongoSchema.writingData(mongoose);
+
+router.get('/', function(req, res) { 
+    res.render('index', { title: "수집서버 시작" });
+});
+
 
 router.get('/mongoInsert', function(req, res) { 
   
-    var db = mongoConn.mongoConnection(mongoose);
     
     var StudentModel = mongoSchema.getStudent(mongoose);
 
@@ -28,13 +34,11 @@ router.get('/mongoInsert', function(req, res) {
         returnObject.msg = "successInsert";
 
         res.send(returnObject);
-        db.close();
     });
 
 });
 
 router.get('/mongoSelectAll', function(req, res) { 
-    var db = mongoConn.mongoConnection(mongoose);
 
     var StudentModel = mongoSchema.getStudent(mongoose);
 
@@ -51,7 +55,6 @@ router.get('/mongoSelectAll', function(req, res) {
         returnObject.msg = "successSelectAll";
         
         res.send(returnObject);
-        db.close();
     })
 
 
@@ -148,10 +151,6 @@ router.post('/saveData', function(req, res) {
     var userData = req.body.data;
     var userPhoneme = req.body.phoneme;
 
-    var db = mongoConn.mongoConnection(mongoose);
-    
-    var WritingData = mongoSchema.writingData(mongoose);
-
     // 3. WritingData 객체를 new 로 생성해서 값을 입력
     var newWriting = new WritingData({name: userName, phoneme: userPhoneme, data: userData});
 
@@ -168,7 +167,6 @@ router.post('/saveData', function(req, res) {
         returnObject.msg = "successInsert";
 
         res.send(returnObject);
-        db.close();
     });
 
 });
