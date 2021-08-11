@@ -7,7 +7,7 @@ public class DrawLine : MonoBehaviour
 {
     // *** Variables *** //
     public GameObject linePrefab, canvas;
-    public GameObject inputField, dialog, nameField;
+    public GameObject inputField, dialog, nameField, nextLetter, resultText;
 
     // Drawing
     List<GameObject> lineList = new List<GameObject>();
@@ -34,9 +34,12 @@ public class DrawLine : MonoBehaviour
     // 서버에 저장되는 데이터
     string savedPoints, linePoints;
 
-    // 저장할 음소
-    string[] character = new string[24] {'ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ','ㅏ','ㅑ','ㅓ','ㅕ','ㅗ','ㅛ','ㅜ','ㅠ','ㅡ','ㅣ'};
-    
+    // 저장할 글자 제시
+    string[] letter = new string[20] {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ","ㅏ","ㅑ","ㅓ","ㅕ","ㅗ","ㅛ"};
+    int letterNum = 0;
+
+    // PlayerPrefs.SetInt(“RewardPanel”, 1);
+    // PlayerPrefs.GetInt(“RewardPanel”, 0);
 
     void Start()
     {
@@ -51,6 +54,18 @@ public class DrawLine : MonoBehaviour
         // 화면 비율에 맞게 sample size 조절
         sampleWidth = samplePixelSize * ratioWidth;
         sampleHeight = samplePixelSize * ratioHeight;
+
+        // 제시어 세팅
+        int test = letterNum/10;
+        Debug.Log(test);
+        letterNum = PlayerPrefs.GetInt("letterNum", 0);
+        Debug.Log(letterNum);
+        if(letterNum >= 200) {
+            nextLetter.GetComponent<Text>().text = "종료";
+            resultText.GetComponent<Text>().text = "수고하셨습니다!!\n";
+        } else {
+            nextLetter.GetComponent<Text>().text = letter[letterNum/10];
+        }
     }
 
     void Update()
@@ -129,22 +144,38 @@ public class DrawLine : MonoBehaviour
         DrawSample();
 
         // 사용자가 입력한 음소 받아오기
-        string phoneme = inputField.GetComponent<InputField>().text;
-        GameObject.Find("Letter").GetComponent<Text>().text = phoneme;
+        // string phoneme = inputField.GetComponent<InputField>().text;
+        // GameObject.Find("Letter").GetComponent<Text>().text = phoneme;
+
+        // 저장할 음소
+        string phoneme = letter[letterNum/10];
+
         //사용자 이름 받아오기
         string name = nameField.GetComponent<InputField>().text;
 
         // Dialog 메시지 띄우기
-        SetDialogMessage(phoneme,linePoints,name);
+        // SetDialogMessage(phoneme,linePoints,name);
+        SetResultText(linePoints,name);
         
         // 조건 만족하면 서버에 저장
-        if(name != "", linePoints != "") { //if(phoneme != "" && linePoints != "") {
+        if(name != "" && linePoints != "") { //if(phoneme != "" && linePoints != "") {
             // 서버에 저장하기
             ServerManager manager = GameObject.Find("ServerManager").GetComponent<ServerManager>();
             manager.saveData(name, phoneme, linePoints);
 
             // 저장하면 linePoints 지우기
             DeleteAll();
+
+            // 다음 글자 제시하기
+            letterNum++;
+            if(letterNum >= 200) {
+                nextLetter.GetComponent<Text>().text = "종료";
+                resultText.GetComponent<Text>().text = "수고하셨습니다!!\n";
+            } else {
+                nextLetter.GetComponent<Text>().text = letter[letterNum/10];
+                PlayerPrefs.SetInt("letterNum", letterNum);
+            }
+            
         }
     }
 
@@ -172,6 +203,20 @@ public class DrawLine : MonoBehaviour
         // 메시지 띄우기
         dialog.SetActive(true);
         dialog.transform.SetAsLastSibling();
+    }
+    
+    void SetResultText(string linePoints, string name) {
+
+        if(linePoints == "") {
+            // 필기 데이터를 입력하지 않았을 때
+            resultText.GetComponent<Text>().text = "필기 데이터를\n입력해주세요.";
+        } else if(name == "") { 
+            // 이름을 입력하지 않았을 때
+            resultText.GetComponent<Text>().text = "이름을\n입력해주세요.";
+        } else {
+            // 저장 완료
+            resultText.GetComponent<Text>().text = "저장이\n완료되었습니다.";
+        }
     }
 
     void Sampling() {
