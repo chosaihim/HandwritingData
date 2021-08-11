@@ -1147,7 +1147,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 3
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 0
     m_HorizontalOverflow: 1
@@ -2612,7 +2612,8 @@ MonoBehaviour:
   inputField: {fileID: 1483336663}
   dialog: {fileID: 2007809618}
   nameField: {fileID: 1020050899}
-  nextLetter: {fileID: 396978198}
+  nextLetter: {fileID: 108681457}
+  resultText: {fileID: 396978198}
 --- !u!1 &1723571047
 GameObject:
   m_ObjectHideFlags: 0
