@@ -43,6 +43,10 @@ public class DrawLine : MonoBehaviour
 
     void Start()
     {
+
+        // 스크린 가로 고정
+        Screen.orientation = ScreenOrientation.Landscape;
+        
         // canvas 크기
         canvasWidth = canvas.transform.GetComponent<RectTransform>().rect.width;
         canvasHeight = canvas.transform.GetComponent<RectTransform>().rect.height;
