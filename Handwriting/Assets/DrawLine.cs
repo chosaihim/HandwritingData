@@ -168,13 +168,18 @@ public class DrawLine : MonoBehaviour
         SetResultText(linePoints,name);
         
         // 조건 만족하면 서버에 저장
-        if(name != "" && linePoints != "") { //if(phoneme != "" && linePoints != "") {
+        if(linePoints != "") { //if(name != "" && phoneme != "" && linePoints != "") {
             // 서버에 저장하기
             ServerManager manager = GameObject.Find("ServerManager").GetComponent<ServerManager>();
             manager.saveData(name, phoneme, linePoints);
 
             // 저장하면 linePoints 지우기
             DeleteAll();
+
+            //10번째까지 저장하면 알림 메시지 띄우기
+            if(letterNum % 10 == 9) {
+                SetDialogMessage(phoneme,linePoints,name);
+            }
 
             // 다음 글자 제시하기
             letterNum++;
@@ -196,23 +201,25 @@ public class DrawLine : MonoBehaviour
     void SetDialogMessage(string phoneme, string linePoints, string name) {
         GameObject dialogText = dialog.transform.Find("Dialog/Text").gameObject;
 
-        if(phoneme == "") {
-            // 음소를 입력하지 않았을 때
-            dialogText.GetComponent<Text>().text = "음소를\n입력해주세요.";
-        } else if(linePoints == "") {
-            // 필기 데이터를 입력하지 않았을 때
-            dialogText.GetComponent<Text>().text = "필기 데이터를\n입력해주세요.";
-        } else if(name == "") { 
-            // 이름을 입력하지 않았을 때
-            dialogText.GetComponent<Text>().text = "이름을\n입력해주세요.";
-        } else {
-            // 저장 완료
-            dialogText.GetComponent<Text>().text = "저장이\n완료되었습니다.";
-        }
+        dialogText.GetComponent<Text>().text = "'" + phoneme + "'의 저장이 완료되었습니다.";
+
+        // if(phoneme == "") {
+        //     // 음소를 입력하지 않았을 때
+        //     dialogText.GetComponent<Text>().text = "음소를\n입력해주세요.";
+        // } else if(linePoints == "") {
+        //     // 필기 데이터를 입력하지 않았을 때
+        //     dialogText.GetComponent<Text>().text = "필기 데이터를\n입력해주세요.";
+        // } else if(name == "") { 
+        //     // 이름을 입력하지 않았을 때
+        //     dialogText.GetComponent<Text>().text = "이름을\n입력해주세요.";
+        // } else {
+        //     // 저장 완료
+        //     dialogText.GetComponent<Text>().text = "저장이\n완료되었습니다.";
+        // }
 
         // 메시지 띄우기
         dialog.SetActive(true);
-        dialog.transform.SetAsLastSibling();
+        // dialog.transform.SetAsLastSibling();
     }
     
     void SetResultText(string linePoints, string name) {
@@ -220,12 +227,12 @@ public class DrawLine : MonoBehaviour
         if(linePoints == "") {
             // 필기 데이터를 입력하지 않았을 때
             resultText.GetComponent<Text>().text = "필기 데이터를\n입력해주세요.";
-        } else if(name == "") { 
-            // 이름을 입력하지 않았을 때
-            resultText.GetComponent<Text>().text = "이름을\n입력해주세요.";
+        // } else if(name == "") { 
+        //     // 이름을 입력하지 않았을 때
+        //     resultText.GetComponent<Text>().text = "이름을\n입력해주세요.";
         } else {
             // 저장 완료
-            resultText.GetComponent<Text>().text = "저장되었습니다.";
+            resultText.GetComponent<Text>().text = (letterNum%10+1) + "번째\n 저장되었습니다.";
         }
     }
 
