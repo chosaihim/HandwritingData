@@ -8,6 +8,7 @@ public class DrawLine : MonoBehaviour
     // *** Variables *** //
     public GameObject linePrefab, canvas;
     public GameObject inputField, dialog, nameField, nextLetter, resultText;
+    public GameObject namePanel, name;
 
     // Drawing
     List<GameObject> lineList = new List<GameObject>();
@@ -43,10 +44,18 @@ public class DrawLine : MonoBehaviour
 
     void Start()
     {
+        // 이름 입력창
+        // 이름 입력 받은 적 있으면 이름 입력창 제거
+        string savedName = PlayerPrefs.GetString("Name","");  
+        if(savedName != ""){
+            namePanel.SetActive(false);
+            // name.GetComponent<Text>().text = savedName;
+            SetName(savedName);
+        }
 
         // 스크린 가로 고정
         Screen.orientation = ScreenOrientation.Landscape;
-        
+
         // canvas 크기
         canvasWidth = canvas.transform.GetComponent<RectTransform>().rect.width;
         canvasHeight = canvas.transform.GetComponent<RectTransform>().rect.height;
@@ -331,5 +340,9 @@ public class DrawLine : MonoBehaviour
             }
         }
         sampledPoints.Clear();
+    }
+
+    public void SetName(string userName) {
+        name.GetComponent<Text>().text = userName;
     }
 }
