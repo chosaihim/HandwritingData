@@ -162,7 +162,7 @@ public class DrawLine : MonoBehaviour
         string phoneme = letter[letterNum/10];
 
         //사용자 이름 받아오기
-        string name = nameField.GetComponent<InputField>().text;
+        string name = this.name.GetComponent<Text>().text;
 
         // Dialog 메시지 띄우기
         // SetDialogMessage(phoneme,linePoints,name);
