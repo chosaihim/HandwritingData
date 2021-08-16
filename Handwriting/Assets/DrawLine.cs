@@ -359,7 +359,9 @@ public class DrawLine : MonoBehaviour
 
     public void Restart() {
         PlayerPrefs.DeleteAll();
-
+        // 저장된 필기 데이터 지우기
+        DeleteAll();
+        DeleteSample();
         // 제시어 초기화
         nextLetter.GetComponent<Text>().text = letter[0];
         // 결과 안내문 초기화
