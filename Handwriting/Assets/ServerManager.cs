@@ -30,7 +30,8 @@ public class ServerManager : MonoBehaviour {
 
 	// private static string serverUrl = "http://api.sojunghangeul.com"; // 운영 서버
 	// private static string serverUrl = "http://ec2-3-35-166-183.ap-northeast-2.compute.amazonaws.com:8600"; // 개발 서버
-	private static string serverUrl = "http://127.0.0.1:8500"; // 로컬 서버
+	// private static string serverUrl = "http://127.0.0.1:8500"; // 로컬 서버
+	private static string serverUrl = "http://183.107.25.42:8500"; // 딥러닝 서버 주소
 	private static string modeUrl = serverUrl + "/getServerMode";
 	private static string timeUrl = serverUrl + "/mysql/addTime";
 	private static string saveDataUrl = serverUrl + "/saveData";
