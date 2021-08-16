@@ -1,3 +1,9 @@
 Handwriting/Library*
 Handwriting/Temp*
-Handwriting/obj/Debug*
+Handwriting/obj*
+Handwriting/*.csproj
+Handwriting/*.sln
+Handwriting/Logs*
+Handwriting/Packages*
+learningServer/node_modules*
+learningServer_1/node_modules*
