@@ -199,6 +199,7 @@ public class DrawLine : MonoBehaviour
 
     public void ConfirmButton() {
         DeleteSample();
+        resultText.GetComponent<Text>().text = "제시된 글자를 써주세요!";
         dialog.SetActive(false);
     }
 

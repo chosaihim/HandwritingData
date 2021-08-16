@@ -1981,6 +1981,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1591185335}
     m_Modifications:
+    - target: {fileID: 6093901828966347051, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1600399664}
+    - target: {fileID: 6093901828966347051, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Restart
+      objectReference: {fileID: 0}
     - target: {fileID: 6494694487280231834, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -2157,7 +2167,8 @@ PrefabInstance:
       propertyPath: restartPanel
       value: 
       objectReference: {fileID: 2014552136}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8838179834198466702, guid: 9e8529ab3e09245e5b6c77fbd7cd918f, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 9e8529ab3e09245e5b6c77fbd7cd918f, type: 3}
 --- !u!1 &1150739612
 GameObject:
