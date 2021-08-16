@@ -195,6 +195,7 @@ public class DrawLine : MonoBehaviour
     }
 
     public void ConfirmButton() {
+        DeleteSample();
         dialog.SetActive(false);
     }
 
