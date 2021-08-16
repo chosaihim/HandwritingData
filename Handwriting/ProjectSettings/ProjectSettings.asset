@@ -172,7 +172,7 @@ PlayerSettings:
     iPhone: com.h2kresearch.preciousHangul
   buildNumber:
     iPhone: 5
-  AndroidBundleVersionCode: 162
+  AndroidBundleVersionCode: 163
   AndroidMinSdkVersion: 19
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
