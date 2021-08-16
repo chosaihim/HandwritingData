@@ -8,7 +8,7 @@ public class DrawLine : MonoBehaviour
     // *** Variables *** //
     public GameObject linePrefab, canvas;
     public GameObject inputField, dialog, nameField, nextLetter, resultText;
-    public GameObject namePanel, name;
+    public GameObject namePanel, name, restartPanel;
 
     // Drawing
     List<GameObject> lineList = new List<GameObject>();
@@ -179,6 +179,7 @@ public class DrawLine : MonoBehaviour
             //10번째까지 저장하면 알림 메시지 띄우기
             if(letterNum % 10 == 9) {
                 SetDialogMessage(phoneme,linePoints,name);
+                DeleteSample();
             }
 
             // 다음 글자 제시하기
@@ -352,5 +353,11 @@ public class DrawLine : MonoBehaviour
 
     public void SetName(string userName) {
         name.GetComponent<Text>().text = userName;
+    }
+
+    public void Restart() {
+        PlayerPrefs.DeleteAll();
+        namePanel.SetActive(true);
+        restartPanel.SetActive(false);
     }
 }
