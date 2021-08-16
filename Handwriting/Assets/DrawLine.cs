@@ -54,7 +54,7 @@ public class DrawLine : MonoBehaviour
         }
 
         // 스크린 가로 고정
-        Screen.orientation = ScreenOrientation.Landscape;
+        // Screen.orientation = ScreenOrientation.Landscape;
 
         // canvas 크기
         canvasWidth = canvas.transform.GetComponent<RectTransform>().rect.width;
