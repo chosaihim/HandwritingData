@@ -1981,6 +1981,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1591185335}
     m_Modifications:
+    - target: {fileID: 6494694487280231834, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6494694487280231834, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetActive
+      objectReference: {fileID: 0}
     - target: {fileID: 6494694487384940124, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
         type: 3}
       propertyPath: m_Pivot.x
@@ -2098,9 +2108,55 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8838179834198466702, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
         type: 3}
+      propertyPath: name
+      value: 
+      objectReference: {fileID: 318546697}
+    - target: {fileID: 8838179834198466702, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: canvas
+      value: 
+      objectReference: {fileID: 1600399657}
+    - target: {fileID: 8838179834198466702, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: dialog
+      value: 
+      objectReference: {fileID: 2007809618}
+    - target: {fileID: 8838179834198466702, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: nameField
+      value: 
+      objectReference: {fileID: 341018054}
+    - target: {fileID: 8838179834198466702, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
       propertyPath: namePanel
       value: 
       objectReference: {fileID: 1386216812}
+    - target: {fileID: 8838179834198466702, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: inputField
+      value: 
+      objectReference: {fileID: 1483336663}
+    - target: {fileID: 8838179834198466702, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: linePrefab
+      value: 
+      objectReference: {fileID: 2929911245367345743, guid: 06f0c88d2c561471eb2d01c041336c92,
+        type: 3}
+    - target: {fileID: 8838179834198466702, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: nextLetter
+      value: 
+      objectReference: {fileID: 108681457}
+    - target: {fileID: 8838179834198466702, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: resultText
+      value: 
+      objectReference: {fileID: 396978198}
+    - target: {fileID: 8838179834198466702, guid: 9e8529ab3e09245e5b6c77fbd7cd918f,
+        type: 3}
+      propertyPath: restartPanel
+      value: 
+      objectReference: {fileID: 2014552136}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e8529ab3e09245e5b6c77fbd7cd918f, type: 3}
 --- !u!1 &1150739612
@@ -3256,6 +3312,7 @@ MonoBehaviour:
   resultText: {fileID: 396978198}
   namePanel: {fileID: 1386216812}
   name: {fileID: 318546697}
+  restartPanel: {fileID: 2014552136}
 --- !u!1 &1723571047
 GameObject:
   m_ObjectHideFlags: 0

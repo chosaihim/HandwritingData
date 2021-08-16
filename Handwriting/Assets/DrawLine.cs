@@ -158,6 +158,7 @@ public class DrawLine : MonoBehaviour
         // GameObject.Find("Letter").GetComponent<Text>().text = phoneme;
 
         // 저장할 음소
+        letterNum = PlayerPrefs.GetInt("letterNum", 0);
         string phoneme = letter[letterNum/10];
 
         //사용자 이름 받아오기
@@ -184,6 +185,7 @@ public class DrawLine : MonoBehaviour
 
             // 다음 글자 제시하기
             letterNum++;
+
             if(letterNum >= 200) {
                 nextLetter.GetComponent<Text>().text = "종료";
                 resultText.GetComponent<Text>().text = "수고하셨습니다!!\n";
@@ -357,7 +359,14 @@ public class DrawLine : MonoBehaviour
 
     public void Restart() {
         PlayerPrefs.DeleteAll();
-        namePanel.SetActive(true);
+
+        // 제시어 초기화
+        nextLetter.GetComponent<Text>().text = letter[0];
+        // 결과 안내문 초기화
+        resultText.GetComponent<Text>().text = "제시된 글자를 써주세요!";
+        // 재시작 패널 끄기
         restartPanel.SetActive(false);
+        // 이름입력 패널 켜기
+        namePanel.SetActive(true);
     }
 }
