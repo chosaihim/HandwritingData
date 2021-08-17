@@ -39,22 +39,14 @@ public class DrawLine : MonoBehaviour
     string[] letter = new string[20] {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ","ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ"};
     int letterNum = 0;
 
-    // PlayerPrefs.SetInt(“RewardPanel”, 1);
-    // PlayerPrefs.GetInt(“RewardPanel”, 0);
-
     void Start()
     {
         // 이름 입력창
-        // 이름 입력 받은 적 있으면 이름 입력창 제거
         string savedName = PlayerPrefs.GetString("Name","");  
-        if(savedName != ""){
+        if(savedName != ""){ // 이름 입력 받은 적 있으면 이름 입력창 제거
             namePanel.SetActive(false);
-            // name.GetComponent<Text>().text = savedName;
             SetName(savedName);
         }
-
-        // 스크린 가로 고정
-        // Screen.orientation = ScreenOrientation.Landscape;
 
         // canvas 크기
         canvasWidth = canvas.transform.GetComponent<RectTransform>().rect.width;
@@ -153,10 +145,6 @@ public class DrawLine : MonoBehaviour
         // Sampled Area에 샘플된 데이터 그리기
         DrawSample();
 
-        // 사용자가 입력한 음소 받아오기
-        // string phoneme = inputField.GetComponent<InputField>().text;
-        // GameObject.Find("Letter").GetComponent<Text>().text = phoneme;
-
         // 저장할 음소
         letterNum = PlayerPrefs.GetInt("letterNum", 0);
         string phoneme = letter[letterNum/10];
@@ -164,12 +152,11 @@ public class DrawLine : MonoBehaviour
         //사용자 이름 받아오기
         string name = this.name.GetComponent<Text>().text;
 
-        // Dialog 메시지 띄우기
-        // SetDialogMessage(phoneme,linePoints,name);
+        // 결과 메시지 띄우기
         SetResultText(linePoints,name);
         
         // 조건 만족하면 서버에 저장
-        if(linePoints != "") { //if(name != "" && phoneme != "" && linePoints != "") {
+        if(linePoints != "") {
             // 서버에 저장하기
             ServerManager manager = GameObject.Find("ServerManager").GetComponent<ServerManager>();
             manager.saveData(name, phoneme, linePoints);
@@ -177,7 +164,7 @@ public class DrawLine : MonoBehaviour
             // 저장하면 linePoints 지우기
             DeleteAll();
 
-            //10번째까지 저장하면 알림 메시지 띄우기
+            //10번째까지 저장하면 Dialog 메시지 띄우기
             if(letterNum % 10 == 9) {
                 SetDialogMessage(phoneme,linePoints,name);
                 DeleteSample();
@@ -185,11 +172,10 @@ public class DrawLine : MonoBehaviour
 
             // 다음 글자 제시하기
             letterNum++;
-
-            if(letterNum >= 200) {
+            if(letterNum >= 200) {  // 마지막 글자 이후 
                 nextLetter.GetComponent<Text>().text = "종료";
                 resultText.GetComponent<Text>().text = "수고하셨습니다!!\n";
-            } else {
+            } else {    // 마지막 글자 이전
                 nextLetter.GetComponent<Text>().text = letter[letterNum/10];
                 PlayerPrefs.SetInt("letterNum", letterNum);
             }
@@ -205,26 +191,10 @@ public class DrawLine : MonoBehaviour
 
     void SetDialogMessage(string phoneme, string linePoints, string name) {
         GameObject dialogText = dialog.transform.Find("Dialog/Text").gameObject;
-
+        // 메시지 입력
         dialogText.GetComponent<Text>().text = "'" + phoneme + "'의 저장이 완료되었습니다.";
-
-        // if(phoneme == "") {
-        //     // 음소를 입력하지 않았을 때
-        //     dialogText.GetComponent<Text>().text = "음소를\n입력해주세요.";
-        // } else if(linePoints == "") {
-        //     // 필기 데이터를 입력하지 않았을 때
-        //     dialogText.GetComponent<Text>().text = "필기 데이터를\n입력해주세요.";
-        // } else if(name == "") { 
-        //     // 이름을 입력하지 않았을 때
-        //     dialogText.GetComponent<Text>().text = "이름을\n입력해주세요.";
-        // } else {
-        //     // 저장 완료
-        //     dialogText.GetComponent<Text>().text = "저장이\n완료되었습니다.";
-        // }
-
         // 메시지 띄우기
         dialog.SetActive(true);
-        // dialog.transform.SetAsLastSibling();
     }
     
     void SetResultText(string linePoints, string name) {
@@ -232,9 +202,6 @@ public class DrawLine : MonoBehaviour
         if(linePoints == "") {
             // 필기 데이터를 입력하지 않았을 때
             resultText.GetComponent<Text>().text = "필기 데이터를\n입력해주세요.";
-        // } else if(name == "") { 
-        //     // 이름을 입력하지 않았을 때
-        //     resultText.GetComponent<Text>().text = "이름을\n입력해주세요.";
         } else {
             // 저장 완료
             resultText.GetComponent<Text>().text = (letterNum%10+1) + "번째\n 저장되었습니다.";
@@ -257,10 +224,6 @@ public class DrawLine : MonoBehaviour
         if(xLength > yLength) inputSize = xLength;
         else inputSize = yLength;
 
-        // 크기 변환 후, 필기 데이터의 중앙점 찾기
-        // float xCenter = (xMax + xMin)/2 * (sampleWidth  / inputSize);
-        // float yCenter = (yMax + yMin)/2 * (sampleHeight / inputSize);
-
         // 필기 데이터 중앙점 찾기
         float xCenter = (xMax + xMin)/2;
         float yCenter = (yMax + yMin)/2;
@@ -281,10 +244,6 @@ public class DrawLine : MonoBehaviour
                 pos[0] /= inputSize;
                 pos[1] /= inputSize;
 
-                // // 필기 데이터 일정 사이즈로 조정 후, 중앙점을 원점으로 이동
-                // pos[0] = pos[0] * sampleWidth/inputSize  - xCenter; // + Screen.width/2 + 560 * ratioWidth;
-                // pos[1] = pos[1] * sampleHeight/inputSize - yCenter; // + Screen.height/2 - 115 * ratioHeight;
-                
                 // 노말라이즈 된 데이터를 배열에 저장
                 sampled.Add(pos);
                 
@@ -316,7 +275,6 @@ public class DrawLine : MonoBehaviour
 
                 if(yMin > y) yMin = y;
                 if(yMax < y) yMax = y;
-
             }
         }
     }
@@ -359,6 +317,7 @@ public class DrawLine : MonoBehaviour
     }
 
     public void Restart() {
+        // 앱에 저장된 데이터 초기화
         PlayerPrefs.DeleteAll();
         // 저장된 필기 데이터 지우기
         DeleteAll();
