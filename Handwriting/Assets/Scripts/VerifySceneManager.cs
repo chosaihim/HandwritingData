@@ -12,6 +12,8 @@ public class VerifySceneManager : MonoBehaviour
     float[] centerY = new float[4] {330, 110, -110, -330};
     public GameObject linePrefab, loadText;
     int letterNum = 0;
+    int pageNum = 0;
+    int dataLength = 0;
     ServerManager manager;
     public int loadDataFlag = 0;
     public string loadDataString;
@@ -42,8 +44,6 @@ public class VerifySceneManager : MonoBehaviour
         // canvas 크기
         canvasWidth = this.GetComponent<RectTransform>().rect.width;
         canvasHeight = this.GetComponent<RectTransform>().rect.height;
-        Debug.Log(canvasWidth);
-        Debug.Log(canvasHeight);
 
         // Screen.width / canvasWidth
         ratioWidth = Screen.width / canvasWidth;
@@ -61,27 +61,45 @@ public class VerifySceneManager : MonoBehaviour
     }
 
     public void LoadDate() {
+        pageNum = 0;
+        dataLength = 0;
+
         if(letterNum < letter.Length) {
-            StartCoroutine(test());
+            StartCoroutine(getDataFromServer());
             loadText.GetComponent<Text>().text = letter[++letterNum];
         }
     }
 
-    IEnumerator test() {
+    IEnumerator getDataFromServer() {
         Debug.Log(loadDataFlag);
         yield return StartCoroutine(manager.LoadData("이름", letter[letterNum], 0));
 
-        JObject jsonData = JObject.Parse(loadDataString);
-        int dataLength = (int) jsonData["length"];
-        Debug.Log(jsonData["length"]);
-        arrayData = (JArray)jsonData["dataArray"];
-        
-        int loopLength = dataLength;
+        if(loadDataString != null){
+            JObject jsonData = JObject.Parse(loadDataString);
+            dataLength = (int) jsonData["length"];
+            Debug.Log(jsonData["length"]);
+            arrayData = (JArray)jsonData["dataArray"];
+            
+            int loopLength = dataLength;
 
-        if(dataLength >= 20)
-            loopLength = 20;
+            if(dataLength >= 20)
+                loopLength = 20;
 
-        setSamples(0, loopLength-1);
+            setSamples(0, loopLength-1);
+        } else {
+            Debug.Log("불러온 데이터가 없습니다.");
+        }
+    }
+
+
+    public void setSamples(int first, int last) {
+        DeleteSample();
+
+        for(int i = 0; i < last - first +1; i++) {
+            setASample(first + i);
+        }
+
+        DrawSample();
     }
 
     public void setASample(int index) {
@@ -136,17 +154,6 @@ public class VerifySceneManager : MonoBehaviour
         sampledPoints.Clear();
     }
 
-    public void setSamples(int first, int last) {
-        // setASample(0);
-        DeleteSample();
-
-        for(int i = 0; i < last - first +1; i++) {
-            setASample(first + i);
-        }
-
-        DrawSample();
-
-    }
 
     void DeleteSample() {
         foreach(GameObject line in sampledLineList) { 
@@ -156,5 +163,15 @@ public class VerifySceneManager : MonoBehaviour
         sampledList.Clear();
     }
 
+    public void NextPage() {
+        pageNum++;
+        if(dataLength > pageNum * 20){
+            int last = pageNum * 20 + 20;
+            if(dataLength - pageNum * 20 < 20)
+                last = dataLength;
+
+            setSamples(pageNum*20,last-1);
+        }
+    }
 
 }
