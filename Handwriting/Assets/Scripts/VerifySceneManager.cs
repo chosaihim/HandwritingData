@@ -171,6 +171,19 @@ public class VerifySceneManager : MonoBehaviour
                 last = dataLength;
 
             setSamples(pageNum*20,last-1);
+        } else {
+            pageNum--;
+        }
+    }
+
+    public void PrevPage() {
+        if(pageNum > 0){
+            pageNum--;
+            int last = pageNum * 20 + 20;
+            if(dataLength - pageNum * 20 < 20)
+                last = dataLength;
+
+            setSamples(pageNum*20,last-1);
         }
     }
 
