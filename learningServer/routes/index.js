@@ -117,29 +117,6 @@ router.post('/test', function(req, res) {
 
     console.log("테스트");
     console.log(req.body);
-  
-    // var db = mongoConn.mongoConnection(mongoose);
-    
-    // var StudentModel = mongoSchema.getStudent(mongoose);
-
-    // // 3. Student 객체를 new 로 생성해서 값을 입력
-    // var newStudent = new StudentModel({name:'Hong Gil Dong', address:'서울시 강남구 논현동', age:'22'});
-
-    // // 4. 데이터 저장
-    // newStudent.save(function(error, data){
-    //     if(error){
-    //         console.log(error);
-    //     }else{
-    //         console.log('Saved!')
-    //     }
-
-    //     var returnObject = new Object();
-    //     returnObject.code = 0;
-    //     returnObject.msg = "successInsert";
-
-    //     res.send(returnObject);
-    //     db.close();
-    // });
 
 });
 
@@ -168,6 +145,36 @@ router.post('/saveData', function(req, res) {
 
         res.send(returnObject);
     });
+
+});
+
+router.post('/loadData', function(req, res) {
+
+    console.log("데이터 불러오기");
+    
+    var userPhoneme = req.body.phoneme;
+
+    WritingData.find({"phoneme":userPhoneme},function(error, writing){
+        console.log('--- Read all ---');
+        if(error){
+            console.log(error);
+        }else{
+            console.log("Data Lenght: " , writing.length);
+            var returnObject = new Object();
+            var returnArray = new Array();
+            
+            for(var i = 0; i < writing.length; i++) {
+                var oneObject = new Object();
+                oneObject.data = writing[i].data;
+                oneObject.name = writing[i].name;
+                returnArray.push(oneObject);
+            }
+            
+            returnObject.length = writing.length;
+            returnObject.dataArray = returnArray;
+            res.send(returnObject);
+        }
+    })
 
 });
 
