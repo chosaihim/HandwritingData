@@ -155,9 +155,7 @@ public class ServerManager : MonoBehaviour {
 		yield return loadDataReturn.SendWebRequest();
 
 		if(!loadDataReturn.isNetworkError){
-
-			Debug.Log(loadDataReturn);
-			
+						
 			string loadDataReturnString = loadDataReturn.downloadHandler.text;
 			// JObject jsonData = JObject.Parse(loadDataReturnString);
 			// Debug.Log(jsonData["length"]);

@@ -64,16 +64,15 @@ public class VerifySceneManager : MonoBehaviour
         pageNum = 0;
         dataLength = 0;
 
-        currentText.GetComponent<Text>().text = letter[letterNum];
 
         if(letterNum < letter.Length) {
+            currentText.GetComponent<Text>().text = letter[letterNum];
             StartCoroutine(getDataFromServer());
             loadText.GetComponent<Text>().text = letter[++letterNum];
         }
     }
 
     IEnumerator getDataFromServer() {
-        Debug.Log(loadDataFlag);
         yield return StartCoroutine(manager.LoadData("이름", letter[letterNum], 0));
 
         if(loadDataString != null){
@@ -106,9 +105,7 @@ public class VerifySceneManager : MonoBehaviour
     public void setASample(int index) {
         string pointString = arrayData[index]["data"].ToString().TrimEnd(',');
         string[] words = pointString.Split(',');
-
         string dataId = arrayData[index]["id"].ToString();
-        // Debug.Log("아이디: " + dataId);
 
         List<Vector2> sampled = new List<Vector2>();
         for(int i=0; i < words.Length ; i += 2) {
@@ -188,16 +185,17 @@ public class VerifySceneManager : MonoBehaviour
 
         int index = samplePosition + 20 * pageNum;
         string dataId = arrayData[index]["id"].ToString();
-        Debug.Log("아이디: " + dataId);
-
+        
+        // 서버에서 데이터 지우기
         manager.DeleteData(dataId);
-        // arrayData[index]["data"] = "";
 
-        // int last = pageNum * 20 + 20;
-        // if(dataLength - pageNum * 20 < 20)
-        //     last = dataLength;
+        // 화면에 그려진 데이터 지우기
+        arrayData[index]["data"] = (JValue) "0,0,";
+        int last = pageNum * 20 + 20;
+        if(dataLength - pageNum * 20 < 20)
+            last = dataLength;
 
-        // setSamples(pageNum*20,last-1);
+        setSamples(pageNum*20,last-1);
 
 
     }
