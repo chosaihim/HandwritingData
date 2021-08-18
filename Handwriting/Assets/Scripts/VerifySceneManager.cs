@@ -10,7 +10,7 @@ public class VerifySceneManager : MonoBehaviour
     string[] letter = new string[20] {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ","ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ"};
     float[] centerX = new float[5] {-640, -420, -200, 20, 240};
     float[] centerY = new float[4] {330, 110, -110, -330};
-    public GameObject linePrefab, loadText;
+    public GameObject linePrefab, loadText, currentText;
     int letterNum = 0;
     int pageNum = 0;
     int dataLength = 0;
@@ -38,7 +38,7 @@ public class VerifySceneManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // 서버 가져오기
+        // 서버 매니저 가져오기
         manager = GameObject.Find("ServerManager").GetComponent<ServerManager>();       
 
         // canvas 크기
@@ -64,6 +64,8 @@ public class VerifySceneManager : MonoBehaviour
         pageNum = 0;
         dataLength = 0;
 
+        currentText.GetComponent<Text>().text = letter[letterNum];
+
         if(letterNum < letter.Length) {
             StartCoroutine(getDataFromServer());
             loadText.GetComponent<Text>().text = letter[++letterNum];
@@ -77,7 +79,6 @@ public class VerifySceneManager : MonoBehaviour
         if(loadDataString != null){
             JObject jsonData = JObject.Parse(loadDataString);
             dataLength = (int) jsonData["length"];
-            Debug.Log(jsonData["length"]);
             arrayData = (JArray)jsonData["dataArray"];
             
             int loopLength = dataLength;
@@ -106,6 +107,9 @@ public class VerifySceneManager : MonoBehaviour
         string pointString = arrayData[index]["data"].ToString().TrimEnd(',');
         string[] words = pointString.Split(',');
 
+        string dataId = arrayData[index]["id"].ToString();
+        // Debug.Log("아이디: " + dataId);
+
         List<Vector2> sampled = new List<Vector2>();
         for(int i=0; i < words.Length ; i += 2) {
             Vector2 pos = Vector2.zero;
@@ -118,17 +122,9 @@ public class VerifySceneManager : MonoBehaviour
     }
 
     void DrawSample() {
-        // 초기화
-        // DeleteSample();
-        
-        // Sample Area 중앙점
-        float xSampleAreaCenter = Screen.width/2  - 640 * ratioWidth;
-        float ySampleAreaCenter = Screen.height/2 + 330 * ratioHeight;
-
         // 저장된 샘플 리스트 돌면서 모든 선 순회
         int index = 0;
         foreach(List<Vector2> line in sampledList) {
-            Debug.Log("인덱스: " + index + " (x,y): (" + index/5 + "," + index/4 + ")");
             GameObject sampledLine = Instantiate(linePrefab);
             sampledLineList.Add(sampledLine);
             sampledLine.transform.SetParent(this.transform.Find("SampledArea/SampledData"));
@@ -185,6 +181,25 @@ public class VerifySceneManager : MonoBehaviour
 
             setSamples(pageNum*20,last-1);
         }
+    }
+
+    public void DeleteData(int samplePosition) {
+        Debug.Log("선택한 데이터 삭제하기");
+
+        int index = samplePosition + 20 * pageNum;
+        string dataId = arrayData[index]["id"].ToString();
+        Debug.Log("아이디: " + dataId);
+
+        manager.DeleteData(dataId);
+        // arrayData[index]["data"] = "";
+
+        // int last = pageNum * 20 + 20;
+        // if(dataLength - pageNum * 20 < 20)
+        //     last = dataLength;
+
+        // setSamples(pageNum*20,last-1);
+
+
     }
 
 }

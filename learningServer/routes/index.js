@@ -167,6 +167,7 @@ router.post('/loadData', function(req, res) {
                 var oneObject = new Object();
                 oneObject.data = writing[i].data;
                 oneObject.name = writing[i].name;
+                oneObject.id   = writing[i].id;
                 returnArray.push(oneObject);
             }
             
@@ -175,6 +176,23 @@ router.post('/loadData', function(req, res) {
             res.send(returnObject);
         }
     })
+
+});
+
+router.post('/deleteData', function(req, res) {
+
+    console.log("데이터 삭제하기");
+    
+    var userId = req.body.id;
+
+    // 9. 삭제
+    WritingData.remove({_id:userId}, function(error,output){
+        console.log('--- Delete ---');
+        if(error){
+            console.log(error);
+        }
+    });
+
 
 });
 

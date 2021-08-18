@@ -38,6 +38,7 @@ public class ServerManager : MonoBehaviour {
 	private static string timeUrl = serverUrl + "/mysql/addTime";
 	private static string saveDataUrl = serverUrl + "/saveData";
 	private static string loadDataUrl = serverUrl + "/loadData";
+	private static string deleteDataUrl = serverUrl + "/deleteData";
 
 	private static int serverMode = -1;
 	public static DateTime today;
@@ -171,5 +172,26 @@ public class ServerManager : MonoBehaviour {
 			Debug.Log("데이터 로드 실패!");
 		}
 	}
+
+	public void DeleteData (string id) {
+		StartCoroutine(IEDeleteData(id));
+	}
+
+	IEnumerator IEDeleteData (string id) {
+		
+		WWWForm deleteDataForm = new WWWForm();
+		deleteDataForm.AddField ("id", id);
+
+		UnityWebRequest deleteDataReturn = UnityWebRequest.Post(deleteDataUrl,deleteDataForm);
+		yield return deleteDataReturn.SendWebRequest();
+
+		if(!deleteDataReturn.isNetworkError){
+
+			Debug.Log("데이터 삭제 성공!");
+		} else {
+			Debug.Log("데이터 삭제 실패!");
+		}
+	}
+
 
 }
