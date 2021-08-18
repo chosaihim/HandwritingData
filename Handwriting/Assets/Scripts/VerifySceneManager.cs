@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 public class VerifySceneManager : MonoBehaviour
 {
-    string[] letter = new string[20] {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ","ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ"};
+    string[] letter = new string[21] {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ","ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","없음"};
     float[] centerX = new float[5] {-640, -420, -200, 20, 240};
     float[] centerY = new float[4] {330, 110, -110, -330};
     public GameObject linePrefab, loadText, currentText;
@@ -65,7 +65,7 @@ public class VerifySceneManager : MonoBehaviour
         dataLength = 0;
 
 
-        if(letterNum < letter.Length) {
+        if(letterNum < letter.Length-1) {
             currentText.GetComponent<Text>().text = letter[letterNum];
             StartCoroutine(getDataFromServer());
             loadText.GetComponent<Text>().text = letter[++letterNum];
