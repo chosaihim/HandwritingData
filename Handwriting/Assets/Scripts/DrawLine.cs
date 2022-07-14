@@ -2,9 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
+
+using UnityEngine.Networking;
+using Newtonsoft.Json.Linq;
 
 public class DrawLine : MonoBehaviour
 {
+    public Camera mainCamera; 
+
     // *** Variables *** //
     public GameObject linePrefab, canvas;
     public GameObject inputField, dialog, nameField, nextLetter, resultText;
@@ -33,11 +39,15 @@ public class DrawLine : MonoBehaviour
     float ratioWidth, ratioHeight;      // Screen to Canvas ratio(screen/canvas)
 
     // 서버에 저장되는 데이터
-    string savedPoints, linePoints;
+    string savedPoints, baseLinePoint, linePoints, resizePoint;
 
     // 저장할 글자 제시
-    string[] letter = new string[20] {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ","ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ"};
+    string[] letter = new string[28] {"ㄱ","ㅏ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ","ㄴ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㅑ","ㅕ","ㅛ","ㅠ","ㅐ","ㅒ","ㅔ","ㅖ"};
     int letterNum = 0;
+
+    private int resWidth,resHeight;
+    string path;
+
 
     void Start()
     {
@@ -62,11 +72,11 @@ public class DrawLine : MonoBehaviour
 
         // 제시어 세팅
         letterNum = PlayerPrefs.GetInt("letterNum", 0);
-        if(letterNum >= 200) {
+        if(letterNum >= 700) {
             nextLetter.GetComponent<Text>().text = "종료";
             resultText.GetComponent<Text>().text = "수고하셨습니다!!\n";
         } else {
-            nextLetter.GetComponent<Text>().text = letter[letterNum/10];
+            nextLetter.GetComponent<Text>().text = letter[letterNum/25];
         }
     }
 
@@ -138,6 +148,8 @@ public class DrawLine : MonoBehaviour
     public void Save(){
         // 초기화        
         linePoints = "";
+        baseLinePoint = ""; 
+        resizePoint = "";
 
         // 데이터 샘플링
         Sampling();
@@ -147,7 +159,7 @@ public class DrawLine : MonoBehaviour
 
         // 저장할 음소
         letterNum = PlayerPrefs.GetInt("letterNum", 0);
-        string phoneme = letter[letterNum/10];
+        string phoneme = letter[letterNum/25];
 
         //사용자 이름 받아오기
         string name = this.name.GetComponent<Text>().text;
@@ -159,29 +171,31 @@ public class DrawLine : MonoBehaviour
         if(linePoints != "") {
             // 서버에 저장하기
             ServerManager manager = GameObject.Find("ServerManager").GetComponent<ServerManager>();
-            manager.saveData(name, phoneme, linePoints);
+            manager.saveData(name, phoneme, linePoints, baseLinePoint, resizePoint, "phoneme");
 
             // 저장하면 linePoints 지우기
             DeleteAll();
 
             //10번째까지 저장하면 Dialog 메시지 띄우기
-            if(letterNum % 10 == 9) {
+            if(letterNum % 25 == 24) {
                 SetDialogMessage(phoneme,linePoints,name);
                 DeleteSample();
             }
 
+
             // 다음 글자 제시하기
             letterNum++;
-            if(letterNum >= 200) {  // 마지막 글자 이후 
+            if(letterNum >= 700) {  // 마지막 글자 이후 
                 nextLetter.GetComponent<Text>().text = "종료";
                 resultText.GetComponent<Text>().text = "수고하셨습니다!!\n";
             } else {    // 마지막 글자 이전
-                nextLetter.GetComponent<Text>().text = letter[letterNum/10];
+                nextLetter.GetComponent<Text>().text = letter[letterNum/25];
                 PlayerPrefs.SetInt("letterNum", letterNum);
             }
             
         }
     }
+
 
     public void ConfirmButton() {
         DeleteSample();
@@ -204,7 +218,7 @@ public class DrawLine : MonoBehaviour
             resultText.GetComponent<Text>().text = "필기 데이터를\n입력해주세요.";
         } else {
             // 저장 완료
-            resultText.GetComponent<Text>().text = (letterNum%10+1) + "번째\n 저장되었습니다.";
+            resultText.GetComponent<Text>().text = (letterNum%25+1) + "번째\n 저장되었습니다.";
         }
     }
 
@@ -219,10 +233,15 @@ public class DrawLine : MonoBehaviour
         // 입력 데이터 크기 결정
         float xLength = xMax - xMin;
         float yLength = yMax - yMin;
+        float xinputSize;
+        float yinputSize;
         float inputSize;
 
         if(xLength > yLength) inputSize = xLength;
         else inputSize = yLength;
+
+        xinputSize = xLength;
+        yinputSize = yLength;
 
         // 필기 데이터 중앙점 찾기
         float xCenter = (xMax + xMin)/2;
@@ -234,24 +253,34 @@ public class DrawLine : MonoBehaviour
             List<Vector2> sampled = new List<Vector2>();
             
             for (int i = 0; i < lr.positionCount; i++){ 
+                Vector2 basePos = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
                 Vector2 pos = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
+                Vector2 resizePos = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
                 
                 // 원점을 중심점으로 이동
                 pos[0] -= xCenter;
                 pos[1] -= yCenter;
+                resizePos[0] -= xCenter;
+                resizePos[1] -= yCenter;
 
                 // 0~1 사이의 사이즈로 줄이기
-                pos[0] /= inputSize;
-                pos[1] /= inputSize;
+                pos[0] /= xinputSize;
+                pos[1] /= yinputSize;
+                resizePos[0] /= inputSize;
+                resizePos[1] /= inputSize;
 
                 // 노말라이즈 된 데이터를 배열에 저장
                 sampled.Add(pos);
                 
                 // 서버에 저장할 데이터 string으로 이어붙이기
                 linePoints += pos[0] + "," + pos[1] + ",";
+                baseLinePoint += basePos[0] + "," + basePos[1] + "/"; 
+                resizePoint += resizePos[0] + "," + resizePos[1] + ",";
+                
             }
             sampledList.Add(sampled);
         }
+        Debug.Log(linePoints);
     }
     
     void FindMaxMin() {
@@ -310,6 +339,7 @@ public class DrawLine : MonoBehaviour
             }
         }
         sampledPoints.Clear();
+    
     }
 
     public void SetName(string userName) {

@@ -1,7 +1,7 @@
 module.exports = {
   mysqlConfig: {
-    host: '183.107.25.42',
+    host: '192.168.0.27',
     port: '27017',
-    database: 'takeNotes'
+    database: 'takeNoteFullData'
   }
 };

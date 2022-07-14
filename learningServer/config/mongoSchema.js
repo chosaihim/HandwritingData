@@ -19,10 +19,14 @@ module.exports = function () {
       var handWriting = mongoose.Schema({
           name : 'string',
           phoneme : 'string',
-          data : 'string'
+          data : 'string',
+          resizeData : 'string',
+          baseData : 'string',
+          wordType : 'string',
+          createDate : 'string'
       });
 
-      var HandWriting = mongoose.model('Schema', handWriting);
+      var HandWriting = mongoose.model('schemasubs', handWriting);
       return HandWriting;
     }
   

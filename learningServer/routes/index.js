@@ -8,6 +8,22 @@ mongoConn.mongoConnect(mongoose);
 var db = mongoConn.mongoConnection(mongoose);
 var WritingData = mongoSchema.writingData(mongoose);
 
+function dateFormat(date) {
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hour = date.getHours() + 9;
+    let minute = date.getMinutes();
+    let second = date.getSeconds();
+
+    month = month >= 10 ? month : '0' + month;
+    day = day >= 10 ? day : '0' + day;
+    hour = hour >= 10 ? hour : '0' + hour;
+    minute = minute >= 10 ? minute : '0' + minute;
+    second = second >= 10 ? second : '0' + second;
+
+    return date.getFullYear() + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+}
+
 router.get('/', function(req, res) { 
     res.render('index', { title: "수집서버 시작" });
 });
@@ -122,14 +138,18 @@ router.post('/test', function(req, res) {
 
 router.post('/saveData', function(req, res) {
 
-    console.log("데이터 저장하기");
+    console.log("데이터 저장하기!!");
 
     var userName = req.body.name;
     var userData = req.body.data;
+    var userResizeData = req.body.resizeData;
+    var userBaseData = req.body.baseData;
     var userPhoneme = req.body.phoneme;
+    var userwordType = req.body.wordType;
+    var nowDate = dateFormat(new Date());
 
     // 3. WritingData 객체를 new 로 생성해서 값을 입력
-    var newWriting = new WritingData({name: userName, phoneme: userPhoneme, data: userData});
+    var newWriting = new WritingData({name: userName, phoneme: userPhoneme, data: userData, resizeData: userResizeData, baseData: userBaseData, wordType:userwordType, createDate:nowDate});
 
     // 4. 데이터 저장
     newWriting.save(function(error, data){
@@ -148,6 +168,7 @@ router.post('/saveData', function(req, res) {
 
 });
 
+
 router.post('/loadData', function(req, res) {
 
     console.log("데이터 불러오기");
@@ -165,7 +186,9 @@ router.post('/loadData', function(req, res) {
             
             for(var i = 0; i < writing.length; i++) {
                 var oneObject = new Object();
-                oneObject.data = writing[i].data;
+                
+                oneObject.data = writing[i].data.replace(/\//g,',') ;
+                console.log(oneObject.data);
                 oneObject.name = writing[i].name;
                 oneObject.id   = writing[i].id;
                 returnArray.push(oneObject);
@@ -185,9 +208,10 @@ router.post('/deleteData', function(req, res) {
     
     var userId = req.body.id;
 
+
     // 9. 삭제
     WritingData.remove({_id:userId}, function(error,output){
-        console.log('--- Delete ---');
+        console.log('--- Delete ---'+userId);
         if(error){
             console.log(error);
         }

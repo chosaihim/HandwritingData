@@ -8,6 +8,7 @@ public class NamePanelManager : MonoBehaviour
     public GameObject nameText;
     public GameObject confirmButton;
 	public DrawLine drawLine;
+    public InputDrawLine inputDrawLine;
 
     public void IsNameIn() {
         string name = nameText.GetComponent<Text>().text;
@@ -24,6 +25,11 @@ public class NamePanelManager : MonoBehaviour
         string name = nameText.GetComponent<Text>().text;
         PlayerPrefs.SetString("Name", name);
         this.gameObject.SetActive(false);
-        drawLine.SetName(name);
+        if(drawLine != null) {
+            drawLine.SetName(name);
+        } else {
+            inputDrawLine.SetName(name);
+        }
+        
     }
 }

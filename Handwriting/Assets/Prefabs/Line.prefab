@@ -47,6 +47,7 @@ LineRenderer:
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -75,23 +76,6 @@ LineRenderer:
   m_Positions:
   - {x: 0, y: 0, z: 0}
   - {x: 1, y: 1, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
-  - {x: 2, y: 0, z: 1}
   - {x: 2, y: 0, z: 1}
   m_Parameters:
     serializedVersion: 3
@@ -166,3 +150,7 @@ EdgeCollider2D:
   m_Points:
   - {x: -0.049999952, y: 0.49999997}
   - {x: 2.05, y: 0.49999997}
+  m_AdjacentStartPoint: {x: 0, y: 0}
+  m_AdjacentEndPoint: {x: 0, y: 0}
+  m_UseAdjacentStartPoint: 0
+  m_UseAdjacentEndPoint: 0

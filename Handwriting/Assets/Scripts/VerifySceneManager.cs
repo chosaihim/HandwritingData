@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 public class VerifySceneManager : MonoBehaviour
 {
-    string[] letter = new string[21] {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ","ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","없음"};
+    string[] letter = new string[29] {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ","ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㅑ","ㅕ","ㅛ","ㅠ","ㅐ","ㅒ","ㅔ","ㅖ","없음"};
     float[] centerX = new float[5] {-640, -420, -200, 20, 240};
     float[] centerY = new float[4] {330, 110, -110, -330};
     public GameObject linePrefab, loadText, currentText;
@@ -121,12 +121,16 @@ public class VerifySceneManager : MonoBehaviour
     void DrawSample() {
         // 저장된 샘플 리스트 돌면서 모든 선 순회
         int index = 0;
+
+        Color c1 = new Color(1, 0, 1, 1);
+        Color c2 = Color.black;
         foreach(List<Vector2> line in sampledList) {
             GameObject sampledLine = Instantiate(linePrefab);
             sampledLineList.Add(sampledLine);
             sampledLine.transform.SetParent(this.transform.Find("SampledArea/SampledData"));
             sampledLineRenderer = sampledLine.GetComponent<LineRenderer>();
             sampledLineRenderer.positionCount = 0;
+            sampledLineRenderer.SetColors(c1, c2);
             
             // 각 선의 모든 점을 순회하면서 drawing
             for (int i = 0; i < line.Count; i++){
