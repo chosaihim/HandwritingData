@@ -67,7 +67,7 @@ public class InputDrawLine : MonoBehaviour
     // 저장할 글자 제시
     string[] letter = new string[5] {"하", "페", "토", "궟", "늵"};
     int letterNum = 0;
-    int intputCount = 10;
+    int intputCount = 1;
 
     private int resWidth,resHeight;
     string path;
@@ -198,6 +198,7 @@ public class InputDrawLine : MonoBehaviour
         linePoints = "";
         baseLinePoint = ""; 
         resizePoint = "";
+        string serverString = "";
 
         // 데이터 샘플링
         Sampling();
@@ -208,6 +209,7 @@ public class InputDrawLine : MonoBehaviour
         // 저장할 음소
         letterNum = PlayerPrefs.GetInt("letterNum", 0);
         string phoneme = letter[letterNum/intputCount];
+        string slly = "";
 
         //사용자 이름 받아오기
         string name = this.name.GetComponent<Text>().text;
@@ -218,10 +220,8 @@ public class InputDrawLine : MonoBehaviour
         // 조건 만족하면 서버에 저장
         if(linePoints != "") {
             // 입력 단어 서버에 저장하기
-            ServerManager manager = GameObject.Find("ServerManager").GetComponent<ServerManager>();
-            manager.saveData(name, phoneme, linePoints, baseLinePoint, resizePoint, "word");
-
-  
+            // ServerManager manager = GameObject.Find("ServerManager").GetComponent<ServerManager>();
+            // manager.saveData(name, phoneme, linePoints, baseLinePoint, resizePoint, "word");
        
             // 자음 모음 서버에 저장하기
             Debug.Log(elementArray.Count);
@@ -251,9 +251,14 @@ public class InputDrawLine : MonoBehaviour
                 fullLineParam = fullLineParam.Substring(0, fullLineParam.Length - 1);
                 fullReLineParam = fullReLineParam.Substring(0, fullReLineParam.Length - 1);
                 Debug.Log(elementArray[i]+"("+strokeArray[i]+")"+":"+fullLineParam);
-                manager.saveData(name, elementArray[i], fullLineParam, fullBaseParam, fullReLineParam, "phoneme");
+                // manager.saveData(name, elementArray[i], fullLineParam, fullBaseParam, fullReLineParam, "phoneme");
+                serverString = serverString + fullLineParam +"_";
+                slly = slly + elementArray[i] +",";
             }
-     
+            serverString = serverString.Substring(0, serverString.Length - 1);
+            slly = slly.Substring(0, slly.Length - 1);
+
+            StartCoroutine(ScreenShot(serverString,slly,phoneme));
 
             // 저장하면 linePoints 지우기
             DeleteAll();
@@ -261,13 +266,10 @@ public class InputDrawLine : MonoBehaviour
             //10번째까지 저장하면 Dialog 메시지 띄우기
             if(letterNum % intputCount == intputCount - 1) {
                 SetDialogMessage(phoneme,linePoints,name);
-                DeleteSample();
             }
-
 
             // 다음 글자 제시하기
             letterNum++;
-
             
             if(letterNum >= intputCount * letter.Length) {  // 마지막 글자 이후 
                 nextLetter.GetComponent<Text>().text = "종료";
@@ -291,6 +293,48 @@ public class InputDrawLine : MonoBehaviour
             }
             
         }
+    }
+
+
+    IEnumerator ScreenShot(string serverParam, string slly, string phoneme) {
+        yield return new WaitForEndOfFrame();
+
+        Transform target = GameObject.Find("Canvas/SampledArea/SampledData").GetComponent<Transform> ();
+        Vector3 screenPos = mainCamera.WorldToScreenPoint(target.position);
+
+
+        float basewidth = 1280.0f;
+        float baseBox = 240.0f;
+
+        float inputBox = (Screen.width / basewidth) * baseBox;
+
+        Texture2D tex = new Texture2D((int)inputBox, (int)inputBox, TextureFormat.RGB24, true);
+
+        // 1280 * 720 = 240
+        float lastx = screenPos.x - (int)inputBox / 2;
+        float lasty = screenPos.y - (int)inputBox / 2;
+
+  
+        tex.ReadPixels(new Rect((int)lastx, (int)lasty, (int)inputBox, (int)inputBox), 0, 0, true);
+        tex.Apply();
+
+
+        WWWForm form = new WWWForm();
+        form.AddBinaryData("files", tex.EncodeToPNG());
+        form.AddField("phoneme", phoneme);
+        form.AddField("slly", slly);
+        form.AddField("wordParam", serverParam);
+        UnityWebRequest www = UnityWebRequest.Post("http://192.168.0.27/deep/uploadTestFiles", form);
+        yield return www.SendWebRequest();
+
+        if(www.isNetworkError || www.isHttpError) {
+            Debug.Log(www.error);
+        }
+        else {
+            Debug.Log("Upload complete!");
+        }
+
+        yield return new WaitForSeconds(3.2f);
     }
 
 
