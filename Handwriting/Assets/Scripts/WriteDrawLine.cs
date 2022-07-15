@@ -62,14 +62,14 @@ public class WriteDrawLine : MonoBehaviour
 
     // 서버에 저장되는 데이터
     string baseLinePoint, linePoints, resizePoint;
-    List<string> subBaseLinePointArray = new List<string>();
-    List<string> subLinePointsArray = new List<string>();
-    List<string> subReLinePointsArray = new List<string>();
+    List<List<string>> subBaseLinePointArray = new List<List<string>>();
+    List<List<string>> subLinePointsArray = new List<List<string>>();
+    List<List<string>> subReLinePointsArray = new List<List<string>>();
 
     // 저장할 글자 제시
     //string[] letter = new string[26] {"가","너","도","루","므","비","샤","여","죠","츄","캐","턔","페","혜","꽊","뙜","뾗","쒅","쮆","읽","잚","밟","걼","톭","놇","빖"};
     //string[] letter = new string[5] {"ㅣ","이","기","비","니"};
-    string[] letter = new string[5] {"혜","토","토","궟","늵"};
+    string[] letter = new string[5] {"가","토","토","궟","늵"};
     
     Dictionary<string, int> wordStroke = new Dictionary<string, int>();
 
@@ -80,9 +80,11 @@ public class WriteDrawLine : MonoBehaviour
     string path;
 
     // 제시어 음소 음절 분리
-    List<string> elementArray = new List<string>();
+    List<string> wordProblemList = new List<string>();
+    // 제시어 음소 음절 분리
+    List<List<string>> elementArray = new List<List<string>>();
     // 각 음소 획순 정보
-    List<int> strokeArray = new List<int>();
+    List<List<int>> strokeArray = new List<List<int>>();
 
 
 
@@ -120,13 +122,18 @@ public class WriteDrawLine : MonoBehaviour
 
         char[] inputword = letter[letterNum].ToCharArray();
 
-        // 제시어 자음 모음 분리
-        elementArray = DivideHangul(inputword[0]);
-        // 분리된 자음 모음 획순
-        for(int i=0; i < elementArray.Count; i++) {
-            Debug.Log(elementArray[i]);
-            Debug.Log(wordStroke[elementArray[i]]);
-            strokeArray.Add(wordStroke[elementArray[i]]);
+        for(int k=0; k < inputword.Length; k++) {
+            // 제시어 자음 모음 분리
+            wordProblemList.Add(inputword[k].ToString());
+            elementArray.Add(DivideHangul(inputword[k]));
+            List<int> stroke = new List<int>();
+            // 분리된 자음 모음 획순
+            for(int i=0; i < elementArray[k].Count; i++) {
+                Debug.Log(elementArray[k][i]);
+                Debug.Log(wordStroke[elementArray[k][i]]);
+                stroke.Add(wordStroke[elementArray[k][i]]);
+            }
+            strokeArray.Add(stroke);
         }
     }
 
@@ -193,10 +200,16 @@ public class WriteDrawLine : MonoBehaviour
             Destroy(line); 
         }
     }
+    void LineListSeparation() {
+
+    }
 
     public void Save(){
         // 초기화        
         linePoints = "";
+
+        // 입력된 글자을 목적에 맞게 분리
+        LineListSeparation();
 
         // 데이터 샘플링
         Sampling();
@@ -217,7 +230,6 @@ public class WriteDrawLine : MonoBehaviour
         // 조건 만족하면 서버에 저장
         if(linePoints != "") {
             // 서버에 저장하기
-            ServerManager manager = GameObject.Find("ServerManager").GetComponent<ServerManager>();
             //manager.saveData(name, phoneme, linePoints);
 
             // 저장하면 linePoints 지우기
@@ -272,73 +284,82 @@ public class WriteDrawLine : MonoBehaviour
 
 
     IEnumerator Uploads(byte[] bytes) {
-        WWWForm form = new WWWForm();
-        form.AddBinaryData("files", bytes);
-        form.AddField("problemWord", letter[letterNum]);
-        form.AddField("wordCount", elementArray.Count);
-
 
         string fullBaseParam= "";
         string fullLineParam= "";
         string fullReLineParam= "";
 
                 // 자음 모음 서버에 저장하기
-        Debug.Log(elementArray.Count);
+        Debug.Log(wordProblemList.Count);
         int startNum = 0;
         int endNum = 0;
-        for(int i = 0; i < elementArray.Count; i++) {
-            
-            if(i == 0) {
-                startNum = i;
-                endNum = strokeArray[i];
-            } else {
-                startNum = startNum + strokeArray[i-1];
-                endNum = endNum + strokeArray[i];
-            }
 
-            Debug.Log("i:"+i+"/"+elementArray[i]+":"+strokeArray[i]+"/startNum:"+startNum+"/endNum:"+endNum);
-
-
-            int k = 0;
-            for(int j = startNum; j < endNum; j++) {
-                if(k==0){
-                    fullBaseParam = fullBaseParam + elementArray[i] +":";
-                    fullLineParam = fullLineParam + elementArray[i] +":";
-                    fullReLineParam = fullReLineParam + elementArray[i] +":";
-                }
-                fullBaseParam = fullBaseParam += subBaseLinePointArray[j] + "/";
-                fullLineParam = fullLineParam += subLinePointsArray[j] + "/";
-                fullReLineParam = fullReLineParam += subReLinePointsArray[j] + "/";
-                k++;
-            }
-            fullBaseParam = fullBaseParam.Substring(0, fullBaseParam.Length - 1) + "_";
-            fullLineParam = fullLineParam.Substring(0, fullLineParam.Length - 1) + "_";
-            fullReLineParam = fullReLineParam.Substring(0, fullReLineParam.Length - 1) + "_";
-        }
-
-        fullBaseParam = fullBaseParam.Substring(0, fullBaseParam.Length - 1) ;
-        fullLineParam = fullLineParam.Substring(0, fullLineParam.Length - 1) ;
-        fullReLineParam = fullReLineParam.Substring(0, fullReLineParam.Length - 1);
-
-        Debug.Log(fullLineParam);
-
-        form.AddField("paramData", fullLineParam);
-        form.AddField("paramReData", fullReLineParam);
         
+        for(int h = 0; h < wordProblemList.Count; h++) {
+            fullBaseParam = "";
+            fullLineParam = "";
+            fullReLineParam = "";
 
-        UnityWebRequest www = UnityWebRequest.Post("http://192.168.0.27/deep/uploadfiles", form);
-        yield return www.SendWebRequest();
- 
-        if(www.isNetworkError || www.isHttpError) {
-            Debug.Log(www.error);
-        }
-        else {
-            Debug.Log("Upload complete!");
+            WWWForm form = new WWWForm();
+            form.AddBinaryData("files", bytes);
+            form.AddField("problemWord", wordProblemList[h]);
+            form.AddField("wordCount", wordProblemList.Count);
+            
+            for(int i = 0; i < elementArray[h].Count; i++) {   
+                if(i == 0) {
+                    startNum = i;
+                    endNum = strokeArray[h][i];
+                } else {
+                    startNum = startNum + strokeArray[h][i-1];
+                    endNum = endNum + strokeArray[h][i];
+                }
+
+                Debug.Log("i:"+i+"/"+elementArray[h][i]+":"+strokeArray[h][i]+"/startNum:"+startNum+"/endNum:"+endNum);
+                Debug.Log(subBaseLinePointArray.Count);
+                Debug.Log(subBaseLinePointArray[h].Count);
+
+                int k = 0;
+                for(int j = startNum; j < endNum; j++) {
+                    Debug.Log(subBaseLinePointArray[h][j]);
+                    if(k==0){
+                        fullBaseParam = fullBaseParam + elementArray[h][i] +":";
+                        fullLineParam = fullLineParam + elementArray[h][i] +":";
+                        fullReLineParam = fullReLineParam + elementArray[h][i] +":";
+                    }
+                    fullBaseParam = fullBaseParam += subBaseLinePointArray[h][j] + "/";
+                    fullLineParam = fullLineParam += subLinePointsArray[h][j] + "/";
+                    fullReLineParam = fullReLineParam += subReLinePointsArray[h][j] + "/";
+                    k++;
+                }
+                fullBaseParam = fullBaseParam.Substring(0, fullBaseParam.Length - 1) + "_";
+                fullLineParam = fullLineParam.Substring(0, fullLineParam.Length - 1) + "_";
+                fullReLineParam = fullReLineParam.Substring(0, fullReLineParam.Length - 1) + "_";
+            }
+
+            fullBaseParam = fullBaseParam.Substring(0, fullBaseParam.Length - 1) ;
+            fullLineParam = fullLineParam.Substring(0, fullLineParam.Length - 1) ;
+            fullReLineParam = fullReLineParam.Substring(0, fullReLineParam.Length - 1);
+
+            Debug.Log(fullLineParam);
+
+            form.AddField("paramData", fullLineParam);
+            form.AddField("paramReData", fullReLineParam);
+    
+            UnityWebRequest www = UnityWebRequest.Post("http://192.168.0.27/deep/uploadfiles", form);
+            yield return www.SendWebRequest();
+    
+            if(www.isNetworkError || www.isHttpError) {
+                Debug.Log(www.error);
+            }
+            else {
+                Debug.Log("Upload complete!");
+            }
         }
 
         // 제시어 세팅
         elementArray.Clear();
         strokeArray.Clear();
+        wordProblemList.Clear();
 
         gameCnt++;
         if(gameCnt % 2 == 0 ){
@@ -348,16 +369,18 @@ public class WriteDrawLine : MonoBehaviour
 
         char[] inputword = letter[letterNum].ToCharArray();
 
-
-        // 제시어 자음 모음 분리
-        elementArray = DivideHangul(inputword[0]);
-
-        Debug.Log(elementArray.Count);
-        // 분리된 자음 모음 획순
-        for(int i=0; i < elementArray.Count; i++) {
-            Debug.Log(elementArray[i]);
-            Debug.Log(wordStroke[elementArray[i]]);
-            strokeArray.Add(wordStroke[elementArray[i]]);
+        for(int k=0; k < inputword.Length; k++) {
+            wordProblemList.Add(inputword[k].ToString());
+            // 제시어 자음 모음 분리
+            elementArray.Add(DivideHangul(inputword[k]));
+            // 분리된 자음 모음 획순
+            List<int> stroke = new List<int>();
+            for(int i=0; i < elementArray[k].Count; i++) {
+                Debug.Log(elementArray[k][i]);
+                Debug.Log(wordStroke[elementArray[k][i]]);
+                stroke.Add(wordStroke[elementArray[k][i]]);
+            }
+            strokeArray.Add(stroke);
         }
     }
 
@@ -430,6 +453,7 @@ public class WriteDrawLine : MonoBehaviour
         float xCenter = (xMax + xMin)/2;
         float yCenter = (yMax + yMin)/2;
 
+        List<List<Vector2>> baseSampled = new List<List<Vector2>>();
         // 필기 데이터를 일정 크기로 맞추기
         foreach(GameObject line in lineList) {
             LineRenderer lr = line.GetComponent<LineRenderer>();
@@ -460,106 +484,117 @@ public class WriteDrawLine : MonoBehaviour
                 baseLinePoint += basePos[0] + "," + basePos[1] + ","; 
                 resizePoint += resizePos[0] + "," + resizePos[1] + ",";
             }
-            sampledList.Add(sampled);
-
+            baseSampled.Add(sampled);
         }
+
         linePoints = linePoints.Substring(0, linePoints.Length - 1);
         baseLinePoint = baseLinePoint.Substring(0, baseLinePoint.Length - 1);
         resizePoint = resizePoint.Substring(0, resizePoint.Length - 1);
         ////////////sub 자/모음 처리
         int startFor = 0;
         int endFor = 0;
+        
+        for(int k = 0; k < wordProblemList.Count; k++) {
+            List<string> subBaseLineArray = new List<string>();
+            List<string> subReLineArray = new List<string>();
+            List<string> subLineArray = new List<string>();
 
+            // 분리된 자음 모음 좌표 처리
+            for(int h = 0; h < elementArray[k].Count; h++)
+            {
+                string subLinePoints = "";
+                string subBaseLinePoint = "";
+                string subResizePoint = "";
+                
+                float xLength2 = xSubMax[h] - xSubMin[h];
+                float yLength2 = ySubMax[h] - ySubMin[h];
 
-        // 분리된 자음 모음 좌표 처리
-        for(int i = 0; i < elementArray.Count; i++)
-        {
-            string subLinePoints = "";
-            string subBaseLinePoint = "";
-            string subResizePoint = "";
-            
-            float xLength2 = xSubMax[i] - xSubMin[i];
-            float yLength2 = ySubMax[i] - ySubMin[i];
+                float xinputSize2 = xLength2;
+                float yinputSize2 = yLength2;
+                float inputSize2 ;
 
-            float xinputSize2 = xLength2;
-            float yinputSize2 = yLength2;
-            float inputSize2 ;
+                if(xLength2 > yLength2) inputSize2 = xLength2;
+                else inputSize2 = yLength2;
 
-            if(xLength2 > yLength2) inputSize2 = xLength2;
-            else inputSize2 = yLength2;
+                // 필기 데이터 중앙점 두번째 찾기
+                float  xCenter2 = (xSubMax[h] + xSubMin[h])/2;
+                float  yCenter2 = (ySubMax[h] + ySubMin[h])/2;
 
-            // 필기 데이터 중앙점 두번째 찾기
-            float  xCenter2 = (xSubMax[i] + xSubMin[i])/2;
-            float  yCenter2 = (ySubMax[i] + ySubMin[i])/2;
-
-            // 전체 라인 배열에서 각 자음과 모음의 가져올 배열의 시작과 끝의 위치 정보
-            if(i == 0) {
-                endFor = strokeArray[0];
-            }
-            else if(i > 0) {
-                startFor = endFor;
-                endFor = endFor + strokeArray[i];
-            }
-
-            int t = 0;
-            Debug.Log("획순 순서 : " + i); 
-            // 필기 데이터를 일정 크기로 맞추기
-            foreach(GameObject line in lineList) {
-                if(t >= startFor && t < endFor) {
-                    LineRenderer lr = line.GetComponent<LineRenderer>();
-                    List<Vector2> sampled2 = new List<Vector2>();
-                    List<Vector2> reSampled2 = new List<Vector2>();
-
-                    subBaseLinePoint = "";
-                    subLinePoints = "";
-                    subResizePoint = "";
-
-                    for (int k = 0; k < lr.positionCount; k++) { 
-                        Vector2 basePos = Camera.main.WorldToScreenPoint(lr.GetPosition(k));
-                        Vector2 pos = Camera.main.WorldToScreenPoint(lr.GetPosition(k));
-                        Vector2 rePos = Camera.main.WorldToScreenPoint(lr.GetPosition(k));
-                        
-                        // 원점을 중심점으로 이동
-                        pos[0] -= xCenter2;
-                        pos[1] -= yCenter2;
-                        rePos[0] -= xCenter2;
-                        rePos[1] -= yCenter2;
-
-                        // 0~1 사이의 사이즈로 줄이기
-                        pos[0] /= inputSize2;
-                        pos[1] /= inputSize2;
-                        rePos[0] /= xinputSize2;
-                        rePos[1] /= yinputSize2;
-
-                        // 노말라이즈 된 데이터를 배열에 저장
-                        sampled2.Add(pos);
-    
-                        // 서버에 저장할 데이터 string으로 이어붙이기
-                        subBaseLinePoint += basePos[0] + "," + basePos[1] + ",";
-                        subLinePoints += pos[0] + "," + pos[1] + ",";
-                        subResizePoint += rePos[0] + "," + rePos[1] + ",";
-                    }
-
-                    subBaseLinePoint = subBaseLinePoint.Substring(0, subBaseLinePoint.Length - 1);
-                    subLinePoints = subLinePoints.Substring(0, subLinePoints.Length - 1);
-                    subResizePoint = subResizePoint.Substring(0, subResizePoint.Length - 1);
-
-                    subBaseLinePointArray.Add(subBaseLinePoint);
-                    subReLinePointsArray.Add(subResizePoint);
-                    subLinePointsArray.Add(subLinePoints);
-
-                    Debug.Log(subLinePoints);
-                    if(i==0) {sampledList1.Add(sampled2);}
-                    if(i==1) {sampledList2.Add(sampled2);}
-                    if(i==2) {sampledList3.Add(sampled2);}
-                    if(i==3) {sampledList4.Add(sampled2);}
-                    if(i==4) {sampledList5.Add(sampled2);}
-                    if(i==5) {sampledList6.Add(sampled2);}
-                    if(i==6) {sampledList7.Add(sampled2);}
-                    if(i==7) {sampledList8.Add(sampled2);}
+                // 전체 라인 배열에서 각 자음과 모음의 가져올 배열의 시작과 끝의 위치 정보
+                if(h == 0 && k == 0) {
+                    endFor = strokeArray[k][0];
                 }
-                t++;
+                else {
+                    startFor = endFor;
+                    endFor = endFor + strokeArray[k][h];
+                }
+
+                int t = 0;
+                Debug.Log(wordProblemList[k]+"("+k+")"+": 획순 순서 : " + h + " startFor:" + startFor + " endFor :" + endFor ); 
+
+                
+                // 필기 데이터를 일정 크기로 맞추기
+                foreach(GameObject line in lineList) {
+                    if(t >= startFor && t < endFor) {
+                        LineRenderer lr = line.GetComponent<LineRenderer>();
+                        List<Vector2> sampled2 = new List<Vector2>();
+                        List<Vector2> reSampled2 = new List<Vector2>();
+
+                        subBaseLinePoint = "";
+                        subLinePoints = "";
+                        subResizePoint = "";
+
+                        for (int j = 0; j < lr.positionCount; j++) { 
+                            Vector2 basePos = Camera.main.WorldToScreenPoint(lr.GetPosition(j));
+                            Vector2 pos = Camera.main.WorldToScreenPoint(lr.GetPosition(j));
+                            Vector2 rePos = Camera.main.WorldToScreenPoint(lr.GetPosition(j));
+                            
+                            // 원점을 중심점으로 이동
+                            pos[0] -= xCenter2;
+                            pos[1] -= yCenter2;
+                            rePos[0] -= xCenter2;
+                            rePos[1] -= yCenter2;
+
+                            // 0~1 사이의 사이즈로 줄이기
+                            pos[0] /= inputSize2;
+                            pos[1] /= inputSize2;
+                            rePos[0] /= xinputSize2;
+                            rePos[1] /= yinputSize2;
+
+                            // 노말라이즈 된 데이터를 배열에 저장
+                            sampled2.Add(pos);
+        
+                            // 서버에 저장할 데이터 string으로 이어붙이기
+                            subBaseLinePoint += basePos[0] + "," + basePos[1] + ",";
+                            subLinePoints += pos[0] + "," + pos[1] + ",";
+                            subResizePoint += rePos[0] + "," + rePos[1] + ",";
+                        }
+
+                        subBaseLinePoint = subBaseLinePoint.Substring(0, subBaseLinePoint.Length - 1);
+                        subLinePoints = subLinePoints.Substring(0, subLinePoints.Length - 1);
+                        subResizePoint = subResizePoint.Substring(0, subResizePoint.Length - 1);
+
+                        subBaseLineArray.Add(subBaseLinePoint);
+                        subReLineArray.Add(subResizePoint);
+                        subLineArray.Add(subLinePoints);
+
+                        // Debug.Log(subLinePoints);
+                        if(h==0) {sampledList1.Add(sampled2);}
+                        if(h==1) {sampledList2.Add(sampled2);}
+                        if(h==2) {sampledList3.Add(sampled2);}
+                        if(h==3) {sampledList4.Add(sampled2);}
+                        if(h==4) {sampledList5.Add(sampled2);}
+                        if(h==5) {sampledList6.Add(sampled2);}
+                        if(h==6) {sampledList7.Add(sampled2);}
+                        if(h==7) {sampledList8.Add(sampled2);}
+                    }
+                    t++;
+                }
             }
+
+            subBaseLinePointArray.Add(subBaseLineArray);
+            subReLinePointsArray.Add(subReLineArray);
+            subLinePointsArray.Add(subLineArray);
         }
     }
     
@@ -590,39 +625,42 @@ public class WriteDrawLine : MonoBehaviour
         int startFor = 0;
         int endFor = 0;
 
-        for(int k = 0; k < elementArray.Count; k++) {
-            xSubMin.Add(Screen.width);
-            xSubMax.Add(0);
-            ySubMin.Add(Screen.height);
-            ySubMax.Add(0);
+        int k = 0;
+        for(int h = 0; h < wordProblemList.Count; h++) {
+            for(; k < elementArray[h].Count; k++) {
+                xSubMin.Add(Screen.width);
+                xSubMax.Add(0);
+                ySubMin.Add(Screen.height);
+                ySubMax.Add(0);
 
-            if(k == 0) {
-                endFor = strokeArray[0];
-            }
-            else if(k > 0) {
-                startFor = endFor;
-                endFor = endFor + strokeArray[k];
-            }
+                if(k == 0) {
+                    endFor = strokeArray[h][0];
+                }
+                else if(k > 0) {
+                    startFor = endFor;
+                    endFor = endFor + strokeArray[h][k];
+                }
 
-            int t = 0;
-             // 각 라인의 모든 포인트 순회하며 음소 최대, 최소값 구하기
-            foreach(GameObject line in lineList) {
-                if(t >= startFor && t < endFor) {
-                    LineRenderer lr = line.GetComponent<LineRenderer>();
-                    for (int i = 0; i < lr.positionCount; i++){
-                        // 다시 월드 -> 스크린 포인트로 변환
-                        Vector2 screenPosition = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
-                        float x = screenPosition[0];
-                        float y = screenPosition[1];
+                int t = 0;
+                // 각 라인의 모든 포인트 순회하며 음소 최대, 최소값 구하기
+                foreach(GameObject line in lineList) {
+                    if(t >= startFor && t < endFor) {
+                        LineRenderer lr = line.GetComponent<LineRenderer>();
+                        for (int i = 0; i < lr.positionCount; i++){
+                            // 다시 월드 -> 스크린 포인트로 변환
+                            Vector2 screenPosition = Camera.main.WorldToScreenPoint(lr.GetPosition(i));
+                            float x = screenPosition[0];
+                            float y = screenPosition[1];
 
-                        if(xSubMin[k] > x) xSubMin[k] = x;
-                        if(xSubMax[k] < x) xSubMax[k] = x;
+                            if(xSubMin[k] > x) xSubMin[k] = x;
+                            if(xSubMax[k] < x) xSubMax[k] = x;
 
-                        if(ySubMin[k] > y) ySubMin[k] = y;
-                        if(ySubMax[k] < y) ySubMax[k] = y;
-                    }
-                } 
-                t++;
+                            if(ySubMin[k] > y) ySubMin[k] = y;
+                            if(ySubMax[k] < y) ySubMax[k] = y;
+                        }
+                    } 
+                    t++;
+                }
             }
         }
     }
@@ -659,17 +697,20 @@ public class WriteDrawLine : MonoBehaviour
         }
         sampledPoints.Clear();
 
-        for(int k = 0; k < elementArray.Count; k++) {
-            string objectName = "SampledArea" + (k + 1);
+        int k = 0;
+        for(int i = 0; i < wordProblemList.Count; i++) {
+            for(; k < elementArray[i].Count; k++) {
+                string objectName = "SampledArea" + (k + 1);
 
-            if(k == 0) {DrawCanvas(sampledList1,objectName);}
-            else if(k == 1) {DrawCanvas(sampledList2,objectName);}
-            else if(k == 2) {DrawCanvas(sampledList3,objectName);}
-            else if(k == 3) {DrawCanvas(sampledList4,objectName);}
-            else if(k == 4) {DrawCanvas(sampledList5,objectName);}
-            else if(k == 5) {DrawCanvas(sampledList6,objectName);}
-            else if(k == 6) {DrawCanvas(sampledList7,objectName);}
-            else if(k == 7) {DrawCanvas(sampledList8,objectName);}
+                if(k == 0) {DrawCanvas(sampledList1,objectName);}
+                else if(k == 1) {DrawCanvas(sampledList2,objectName);}
+                else if(k == 2) {DrawCanvas(sampledList3,objectName);}
+                else if(k == 3) {DrawCanvas(sampledList4,objectName);}
+                else if(k == 4) {DrawCanvas(sampledList5,objectName);}
+                else if(k == 5) {DrawCanvas(sampledList6,objectName);}
+                else if(k == 6) {DrawCanvas(sampledList7,objectName);}
+                else if(k == 7) {DrawCanvas(sampledList8,objectName);}
+            }
         }
     }
 
