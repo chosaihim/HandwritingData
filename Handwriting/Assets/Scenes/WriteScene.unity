@@ -4589,6 +4589,7 @@ GameObject:
   - component: {fileID: 1600399660}
   - component: {fileID: 1600399659}
   - component: {fileID: 1600399664}
+  - component: {fileID: 1600399665}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -4747,6 +4748,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70332b0af6b6a43069b08250e1aa527e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  barracudaManager: {fileID: 1600399665}
   mainCamera: {fileID: 519420031}
   linePrefab: {fileID: 2929911245367345743, guid: 06f0c88d2c561471eb2d01c041336c92,
     type: 3}
@@ -4759,6 +4761,20 @@ MonoBehaviour:
   namePanel: {fileID: 1386216812}
   name: {fileID: 318546697}
   restartPanel: {fileID: 2014552136}
+--- !u!114 &1600399665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1600399657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 520e72b359b944447b81987889578049, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  modelAsset: {fileID: 5022602860645237092, guid: 55b9074392495439ea221453601a498c,
+    type: 3}
 --- !u!1 &1654102213
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 
 public class WriteDrawLine : MonoBehaviour
 {
+    public BarracudaManager barracudaManager;
     public Camera mainCamera; 
 
     // *** Variables *** //
@@ -344,16 +345,19 @@ public class WriteDrawLine : MonoBehaviour
 
             form.AddField("paramData", fullLineParam);
             form.AddField("paramReData", fullReLineParam);
+
+            barracudaManager.inputData(fullLineParam);
     
-            UnityWebRequest www = UnityWebRequest.Post("http://192.168.0.27/deep/uploadfiles", form);
-            yield return www.SendWebRequest();
+            // UnityWebRequest www = UnityWebRequest.Post("http://192.168.0.27/deep/uploadfiles", form);
+            // yield return www.SendWebRequest();
     
-            if(www.isNetworkError || www.isHttpError) {
-                Debug.Log(www.error);
-            }
-            else {
-                Debug.Log("Upload complete!");
-            }
+            // if(www.isNetworkError || www.isHttpError) {
+            //     Debug.Log(www.error);
+            // }
+            // else {
+            //     Debug.Log("Upload complete!");
+            // }
+            yield return new WaitForSeconds(1.2f);
         }
 
         // 제시어 세팅
